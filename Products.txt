@@ -1,8 +1,7 @@
-Name
-Description
+Name (max 12char)
+Description (Max 200char)
 Unit Price
 Quantity
-
 
 Athena
 Simple single-sunflower bouquet with a ring of baby's breath.
