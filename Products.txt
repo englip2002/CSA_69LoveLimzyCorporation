@@ -1,64 +1,64 @@
 Name (max 12char)
-Description (Max 200char)
+Description (Max 50char)
 Unit Price
-Quantity
+Quantity in stock
 
 Athena
-Simple single-sunflower bouquet with a ring of baby's breath.
+Sunflower (1 stalk), Baby's breath
 50.00
 50
 
 Baby Blooms
-Show your appreciation through this colourful bouquet comprising imported baby’s breath and pastel roses. Comtains 10 stalks of roses. 
+Roses (9 stalks), Baby's breath
 198.00
 20
 
 Cammy
-Send a bunch of chamomile flowers to express your admiration towards the recipient's perseverance amid challenges and adversities. It's the same flower used to make relaxing Chamomile tea!
+Chamomile flowers
 98.00
 25
 
-Jiggly
-This bouquet comprises 9 stalks of pink roses and foliage. Pink roses convey gentle emotions while pink colour symbolises tenderness and sweetness.
-128.00
-30
-
 Lipstick
-7 Beautiful red roses matched with baby's breath in simple pink wrapping. Send this bouquet to remind the recipient that she is as gorgeous as the red roses.
+Red roses (7 stalks), Baby's breath
 128.00
 30
 
 Mini Red
-Simple hand bouquet comprising 3 stalks of red roses and eucalyptus baby blue leaves. Send this item to your loved one or your friend to brighten up his/her day.
+Red roses (3 stalks), Eucalyptus baby blue
 48.00
 35
 
 Olivia
-Hand bouquet comprising pink roses, red carnations, eustomas and other filler flowers. Perfect for birthday or Mother's Day celebration!
+Red carnations, Roses, Eustomas (Total 7 stalks)
 108.00
 20
 
 Simply White
-A bundle of 9 ivory white roses complemented with eucalyptus baby blues, allows the purity of your love to shine through. Show them how much you care with the elegance in this bouquet.
+White roses (9 stalks), Eucalyptus baby blues
 128.00
 25
 
 Sirius
-Single-stalk sunflower bouquet decorated with roses, ping pong and fillers. Perfect flower gift for graduation ceremony.
+Sunflower, Roses, Ping Pong (Total 5 stalks)
 118.00
 15
 
 Be With Me
-Express your unconditional love for your partner with this bouquet with 18 roses. Wrapped with black wrapping rimmed with gold, it is best suited for upcoming romantic dates or anniversaries.
+Red roses (18 stalks)
 208.00
 15
 
+Merci
+Hydrangea (3 stalks)
+98.00
+20
+
 Eleanor
-A stunning bouquet comprising 18 stalks of pink tulips that symbolises good wishes, making it a great choice to mark significant milestones, such as birthday, new job, promotion, and graduation. 
+Pink tulips (20 stalks)
 298.00
 15
 
 Prom Queen
-A lovely mix of roses, spray roses, eustomas, and ping pong that are sure to be admired. Sending this mix-flower bouquet to your loved one is a sure way to brighten her day!
+Mix of Roses, Spray roses, Eustomas, and Ping Pong
 298.00
 10
