@@ -19,19 +19,22 @@
     prodDescs1 DB "Sunflower (1 stalk), Baby's breath                Roses (9 stalks), Baby's breath                   Chamomile flowers                                 Red roses (7 stalks), Baby's breath               $"
     prodDescs2 DB "Red roses (3 stalks), Eucalyptus baby blue        Red carnations, Roses, Eustomas (Total 7 stalks)  White roses (9 stalks), Eucalyptus baby blues     Sunflower, Roses, Ping Pong (Total 5 stalks)      $"
     prodDescs3 DB "Red roses (18 stalks)                             Hydrangea (3 stalks)                              Pink tulips (20 stalks)                           Mix of Roses, Spray roses, Eustomas, and Ping Pong$"
-    prodPrices DW 50000, 19800, 9800, 12800, 4800, 10800, 12800, 11800, 20800, 9800, 29800, 29800
+    prodPrices DW 50, 198, 98, 128, 48, 108, 128, 118, 208, 98, 298, 298
     prodQuantities DB 50, 20, 25, 30, 35, 20, 25, 15, 15, 20, 15, 10
     opt1Title DB "( Option 1 ) Display Item Information", 13, 10, 10, "$" 
     newline DB 13, 10, "$"
     anyKeyToContinue DB "< Press any key to continue >$"
-    prefixName DB "Product Name: $"
-    prefixDesc DB "Description : $"
-    prefixPrice DB "Price       : RM$"
-    prefixQty DB "Quantity    : $"
+    opt1PrefixName DB "Product Name: $"
+    opt1PrefixDesc DB "Description : $"
+    opt1PrefixPrice DB "Price       : RM $"
+    opt1PrefixQty DB "Quantity    : $"
 
     currProdIndex DB 0
     currProdNameIndex DB 0
     currProdDescIndex DB 0
+
+    displayStack DW 5 DUP (0)
+    tenW DW 10
 .CODE
 MAIN PROC
     MOV AX, @DATA
@@ -42,10 +45,11 @@ MAIN PROC
     INT 21H
 
     Opt1ProductLoop:
+    
+        ; Display Product Name
         MOV AH, 09H
-        LEA DX, prefixName
+        LEA DX, opt1PrefixName
         INT 21H
-
         Opt1NameLoop: ;Loop 12 (prodNameLength) times to display all characters in a product name
             MOV BH, 0
             MOV BL, currProdNameIndex
@@ -60,10 +64,11 @@ MAIN PROC
             CMP AH, 0
             JNE Opt1NameLoop
 
+        ; Display Product Description
         MOV AH, 09H
         LEA DX, newline
         INT 21H
-        LEA DX, prefixDesc
+        LEA DX, opt1PrefixDesc
         INT 21H
 
         MOV AH, 0
@@ -100,11 +105,44 @@ MAIN PROC
             MOV AL, currProdDescIndex
             DIV prodDescLength
             CMP AH, 0
-            JNE Opt1DescLoopStart
+            JE Opt1Price
+            JMP Opt1DescLoopStart
 
-        Opt1PriceLoop:
-            
+        ; Display Product Price
+        Opt1Price:
+            MOV AH, 09H
+            LEA DX, newline
+            INT 21H
+            LEA DX, opt1PrefixPrice
+            INT 21H
 
+        MOV AL, currProdIndex
+        MOV BH, 2       ; Multiply index by 2 because prodPrices array is a word array
+        MUL BH
+        MOV BX, AX
+        MOV AX, prodPrices[BX]
+        CALL DisplayNum
+
+        MOV AH, 02H
+        MOV DL, '.'
+        INT 21H
+        MOV DL, '0'
+        INT 21H
+        INT 21H
+
+        ; Display Product Quantity
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+        LEA DX, opt1PrefixQty
+        INT 21H
+        MOV BH, 0
+        MOV BL, currProdIndex
+        MOV AH, 0
+        MOV AL, prodQuantities[BX]
+        CALL DisplayNum
+
+        ; Display <Press any key to continue>
         MOV AH, 09H
         LEA DX, newline
         INT 21H
@@ -124,12 +162,41 @@ MAIN PROC
         INC currProdIndex
         MOV BL, currProdIndex
         CMP BL, totalProducts
-        JE EndProgram
+        JE EndOpt1
         JMP Opt1ProductLoop
-    
 
-    EndProgram:
+    EndOpt1:
         MOV AX, 4C00H
         INT 21H
 MAIN ENDP
+
+; Display AX in numeric form (max 65535 / 1 word / 2 byte)
+DisplayNum PROC
+    MOV DI, 0
+    displayIntLoop:
+        MOV DX, 0
+        DIV tenW
+        MOV displayStack[DI], DX
+        INC DI
+        CMP AX, 0
+        JNE displayIntLoop
+
+    doneLoop:
+        DEC DI
+        MOV DX, displayStack[DI]
+        MOV AH, 02H
+        ADD DL, 30H
+        INT 21H
+        MOV displayStack[DI], 0
+        CMP DI, 0
+        JNE doneLoop
+    
+    XOR AX, AX
+    XOR BX, BX
+    XOR DX, DX
+
+
+    RET
+DisplayNum ENDP
+
 END MAIN
