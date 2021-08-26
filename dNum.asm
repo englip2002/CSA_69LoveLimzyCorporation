@@ -10,6 +10,7 @@
     displayStack DW 5 DUP (0)
     displayStackIndex DW 0
     newline DB 13, 10, "$"
+    words DW 500, 600, 1500, 1600
 .CODE
 MAIN PROC
     MOV AX, @DATA
@@ -18,11 +19,11 @@ MAIN PROC
     ; How to use:
     ; Move the number to AX
     ; Call DisplayNum
-    MOV AX, n2
+    MOV AX, words[5]
     CALL DisplayNum
 
     MOV AX, 4C00H
-    int 21h
+    INT 21H
 MAIN ENDP
 
 ; Max display: 65535 (1 word)
