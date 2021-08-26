@@ -71,8 +71,8 @@ MAIN PROC
 	LEA DX,sstMsg
 	INT 21H
 	
-    MOV AX, sst
-    CALL DisplayNum
+    	MOV AX, sst
+    	CALL DisplayNum
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -84,8 +84,8 @@ MAIN PROC
 	LEA DX,serviceChargeMsg
 	INT 21H
 	
-    MOV AX, serviceCharge
-    CALL DisplayNum
+    	MOV AX, serviceCharge
+    	CALL DisplayNum
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -98,7 +98,7 @@ MAIN PROC
 	INT 21H
 	
 	MOV AX, totalAmount
-    CALL DisplayNum
+    	CALL DisplayNum
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -147,7 +147,7 @@ MAIN PROC
 	INT 21H
 	
 	MOV AX, adjustedAmount
-    CALL DisplayNum
+    	CALL DisplayNum
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -165,8 +165,8 @@ DisplayNum PROC
 	DIV hundred
 	MOV mantissa, DX
 
-    MOV DI, 0
-    displayIntLoop:
+    	MOV DI, 0
+    	displayIntLoop:
         MOV DX, 0
         DIV tenW
         MOV displayStack[DI], DX
