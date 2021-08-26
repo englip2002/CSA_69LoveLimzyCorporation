@@ -5,11 +5,10 @@
 .DATA
 	;---Display Amount Used
 	tenB DB 10
-    tenW DW 10
+	tenW DW 10
 	hundred DW 100
 	mantissa DW ?
-    displayStack DW 5 DUP (0)
-    n DW 12345
+	displayStack DW 5 DUP (0)
 	
 	;---Display	Message
 	newline             DB 0DH,0AH,"$"
@@ -161,10 +160,10 @@ MAIN ENDP
 
 ;;I have modify a bit to display sen
 DisplayNum PROC
-	getMantissa:
-		MOV DX, 0
-		DIV hundred
-		MOV mantissa, DX
+	;---Get Mantissa
+	MOV DX, 0
+	DIV hundred
+	MOV mantissa, DX
 
     MOV DI, 0
     displayIntLoop:
