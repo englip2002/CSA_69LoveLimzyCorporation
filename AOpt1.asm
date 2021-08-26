@@ -1,12 +1,7 @@
 ; Assignment Option 1
-; Done: 
-;   - Display name
-;   - Display desc
-; Not done:
-;   - Display Price (i have no idea how to store this)
-;       (If we use like 5000 as RM 50.00, mean 2 bytes can store max 65535 / RM 655.35 only)
-;       (Trying LDS and LES to store double word, but this shit just doesn't work)
-;   - Display quantity (easy, but haven't do)
+; Author: Thong So Xue
+; Description:
+;   Loop through all the products and display their product name, description, price and quantity in stock
 
 .MODEL SMALL
 .STACK 100
@@ -24,10 +19,11 @@
     opt1Title DB "( Option 1 ) Display Item Information", 13, 10, 10, "$" 
     newline DB 13, 10, "$"
     anyKeyToContinue DB "< Press any key to continue >$"
-    opt1PrefixName DB "Product Name: $"
-    opt1PrefixDesc DB "Description : $"
-    opt1PrefixPrice DB "Price       : RM $"
-    opt1PrefixQty DB "Quantity    : $"
+    opt1PrefixID    DB "Product ID       : $"
+    opt1PrefixName  DB "Product Name     : $"
+    opt1PrefixDesc  DB "Description      : $"
+    opt1PrefixPrice DB "Price            : RM $"
+    opt1PrefixQty   DB "Quantity In Stock: $"
 
     currProdIndex DB 0
     currProdNameIndex DB 0
@@ -44,8 +40,20 @@ MAIN PROC
     LEA DX, opt1Title
     INT 21H
 
-    Opt1ProductLoop:
     
+    MOV currProdIndex, 0
+    Opt1ProductLoop:
+        ; Display Product ID
+        LEA DX, opt1PrefixID
+        INT 21H
+        MOV AH, 0
+        MOV AL, currProdIndex
+        INC AL
+        CALL DisplayNum
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+
         ; Display Product Name
         MOV AH, 09H
         LEA DX, opt1PrefixName
@@ -190,12 +198,6 @@ DisplayNum PROC
         MOV displayStack[DI], 0
         CMP DI, 0
         JNE doneLoop
-    
-    XOR AX, AX
-    XOR BX, BX
-    XOR DX, DX
-
-
     RET
 DisplayNum ENDP
 
