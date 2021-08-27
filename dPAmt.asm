@@ -71,8 +71,8 @@ MAIN PROC
 	LEA DX,sstMsg
 	INT 21H
 	
-    	MOV AX, sst
-    	CALL DisplayNum
+    MOV AX, sst
+    CALL DisplayAmount
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -84,8 +84,8 @@ MAIN PROC
 	LEA DX,serviceChargeMsg
 	INT 21H
 	
-    	MOV AX, serviceCharge
-    	CALL DisplayNum
+    MOV AX, serviceCharge
+    CALL DisplayAmount
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -98,7 +98,7 @@ MAIN PROC
 	INT 21H
 	
 	MOV AX, totalAmount
-    	CALL DisplayNum
+    CALL DisplayAmount
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -147,7 +147,7 @@ MAIN PROC
 	INT 21H
 	
 	MOV AX, adjustedAmount
-    	CALL DisplayNum
+    CALL DisplayAmount
 	
 	MOV AH,09H
 	LEA DX,newline
@@ -157,32 +157,15 @@ MAIN PROC
     INT 21H
 MAIN ENDP
 
-
-;;I have modify a bit to display sen
-DisplayNum PROC
+;;Display amount with sen
+DisplayAmount PROC
 	;---Get Mantissa
 	MOV DX, 0
 	DIV hundred
 	MOV mantissa, DX
 
-    	MOV DI, 0
-    	displayIntLoop:
-        MOV DX, 0
-        DIV tenW
-        MOV displayStack[DI], DX
-        INC DI
-        CMP AX, 0
-        JNE displayIntLoop
-
-    doneLoop:
-        DEC DI
-        MOV DX, displayStack[DI]
-        MOV AH, 02H
-        ADD DL, 30H
-        INT 21H
-        MOV displayStack[DI], 0
-        CMP DI, 0
-        JNE doneLoop
+	;---Display Integer Part
+    CALL DisplayNum
 	
 	;---Display Decimal Point
 	MOV AH, 02H
@@ -203,6 +186,29 @@ DisplayNum PROC
 	MOV DL,BH
 	ADD DL,30H
 	INT 21H
+		
+    RET
+DisplayAmount ENDP
+
+DisplayNum PROC
+    MOV DI, 0
+    displayIntLoop:
+        MOV DX, 0
+        DIV tenW
+        MOV displayStack[DI], DX
+        INC DI
+        CMP AX, 0
+        JNE displayIntLoop
+
+    doneLoop:
+        DEC DI
+        MOV DX, displayStack[DI]
+        MOV AH, 02H
+        ADD DL, 30H
+        INT 21H
+        MOV displayStack[DI], 0
+        CMP DI, 0
+        JNE doneLoop
 		
     RET
 DisplayNum ENDP
