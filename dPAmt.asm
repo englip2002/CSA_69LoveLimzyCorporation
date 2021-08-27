@@ -12,11 +12,11 @@
 	
 	;---Display	Message
 	newline             DB 0DH,0AH,"$"
-	sstMsg              DB "SST (6%)                      :  RM $"
-	serviceChargeMsg    DB "Service Charge (10%)          :  RM $"
-	totalAmountMsg      DB "Total Amount                  :  RM $"
+	sstMsg              DB "SST (6%)                      :  RM$"
+	serviceChargeMsg    DB "Service Charge (10%)          :  RM$"
+	totalAmountMsg      DB "Total Amount                  :  RM$"
 	roundingMsg         DB "Rounding Adjustment           : $"
-	adjustedAmountMsg   DB "Total Amount (Adjusted)       :  RM $"
+	adjustedAmountMsg   DB "Total Amount (Adjusted)       :  RM$"
 	
 	;---For Calculating Rounding Adjustment
 	five                DB 5
@@ -25,8 +25,8 @@
 	adjustedAmount      DW ?
 	
 	;---Formatting Rounding Adjustment
-	positiveRounding    DB "+RM 0.0$"
-	negativeRounding    DB "-RM 0.0$"
+	positiveRounding    DB "+RM    0.0$"
+	negativeRounding    DB "-RM    0.0$"
 	
 	;---Sample Amounts
 	sst                 DW 740   ;7.40
@@ -72,6 +72,8 @@ MAIN PROC
 	INT 21H
 	
     MOV AX, sst
+	CALL AmountFormatting
+	MOV AX, sst
     CALL DisplayAmount
 	
 	MOV AH,09H
@@ -85,6 +87,8 @@ MAIN PROC
 	INT 21H
 	
     MOV AX, serviceCharge
+	CALL AmountFormatting
+	MOV AX, serviceCharge
     CALL DisplayAmount
 	
 	MOV AH,09H
@@ -97,6 +101,8 @@ MAIN PROC
 	LEA DX,totalAmountMsg
 	INT 21H
 	
+	MOV AX, totalAmount
+	CALL AmountFormatting
 	MOV AX, totalAmount
     CALL DisplayAmount
 	
@@ -147,6 +153,8 @@ MAIN PROC
 	INT 21H
 	
 	MOV AX, adjustedAmount
+	CALL AmountFormatting
+	MOV AX, adjustedAmount
     CALL DisplayAmount
 	
 	MOV AH,09H
@@ -156,6 +164,29 @@ MAIN PROC
     MOV AX, 4C00H
     INT 21H
 MAIN ENDP
+
+;; %7.2f
+AmountFormatting PROC
+	MOV DI, 0
+    CalculateNoOfDigits:
+        MOV DX, 0
+        DIV tenW
+        INC DI
+        CMP AX, 0
+        JNE CalculateNoOfDigits
+	
+	MOV BX,7
+	SUB BX,DI
+	MOV CX,BX
+	Formatting:
+		MOV AH,02H
+		MOV DL," "
+		INT 21H
+		LOOP Formatting
+
+	RET
+AmountFormatting ENDP
+
 
 ;;Display amount with sen
 DisplayAmount PROC
