@@ -1,22 +1,37 @@
-;-----Display Purchase Amounts
+;-- Opt2 (Second part)
+;-- blablabla...
+;-- Calculate Rounding Adjustment
+;-- Display Purchase Amounts (SST, Service Charge, Total, Rounding Adjustment, Adjusted Total)
+;-- Input Cash
+;-- Calculate & Display Balance
 
 .MODEL SMALL
 .STACK 100
 .DATA
-	;---Display Amount Used
-	tenB DB 10
-	tenW DW 10
-	hundred DW 100
-	mantissa DW ?
-	displayStack DW 5 DUP (0)
+	;---Amounts
+	sst                 DW 740   ;7.40
+	serviceCharge       DW 1234  ;12.34
+	totalAmount         DW 31948 ;319.48
+	inputCash           DW 0
+	balance             DW 0
 	
-	;---Display	Message
+	;---Message
 	newline             DB 0DH,0AH,"$"
 	sstMsg              DB "SST (6%)                      :  RM$"
 	serviceChargeMsg    DB "Service Charge (10%)          :  RM$"
 	totalAmountMsg      DB "Total Amount                  :  RM$"
 	roundingMsg         DB "Rounding Adjustment           : $"
 	adjustedAmountMsg   DB "Total Amount (Adjusted)       :  RM$"
+	inputCashMsg        DB "Input Cash (ie. 50.00)        :  RM $"
+	balanceMsg          DB "Balance                       :  RM $"
+	
+	;---Output & Input Amount Used
+	tenB                DB 10
+	tenW                DW 10
+	hundred             DW 100
+	mantissa            DW ?
+	displayStack        DW 5 DUP (0)
+	inputStack          DB 10 DUP(" ")
 	
 	;---For Calculating Rounding Adjustment
 	five                DB 5
@@ -28,10 +43,6 @@
 	positiveRounding    DB "+RM    0.0$"
 	negativeRounding    DB "-RM    0.0$"
 	
-	;---Sample Amounts
-	sst                 DW 740   ;7.40
-	serviceCharge       DW 1234  ;12.34
-	totalAmount         DW 31948 ;319.48
 .CODE
 MAIN PROC
     MOV AX, @DATA
@@ -143,7 +154,7 @@ MAIN PROC
 	
 	EndDisplayRounding:
 		MOV AH,09H
-		LEA DX,newLine
+		LEA DX,newline
 		INT 21H
 		
 	
@@ -160,10 +171,67 @@ MAIN PROC
 	MOV AH,09H
 	LEA DX,newline
 	INT 21H
+	
+	
+	;---Input Cash
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+	
+	MOV AH, 09H
+	LEA DX,inputCashMsg
+	INT 21H
+	
+	MOV AH,0AH
+	LEA DX,inputStack
+	INT 21H
+	
+	MOV DI,2
+	MOV CH,0
+	MOV CL,inputStack[1]
+	ConvertCash:
+		CMP inputStack[DI],"."
+		JE NextDigit
+		
+		SUB inputStack[DI],30H
+		MOV BH,0
+		MOV BL,inputStack[DI]
+		MOV AX,inputCash
+		MUL tenW
+		ADD AX,BX
+		MOV inputCash,AX
+		
+		NextDigit:
+			INC DI
+		LOOP ConvertCash
+		
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+	
+	
+	;---Calculate Balance
+	MOV AX,inputCash
+	SUB AX,adjustedAmount
+	MOV balance,AX
+	
+	
+	;---Display Balance
+	MOV AH,09H
+	LEA DX,balanceMsg
+	INT 21H
+	
+	MOV AX,balance
+    CALL DisplayAmount
+	
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
 
     MOV AX, 4C00H
     INT 21H
 MAIN ENDP
+
 
 ;; %7.2f
 AmountFormatting PROC
