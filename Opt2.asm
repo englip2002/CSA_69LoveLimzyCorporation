@@ -23,12 +23,14 @@
     currProdNameIndex DB 0
     currProdDescIndex DB 0
 
-    ;--ENGLIP
+    ;--Order
+    ;--constant value
     HUNDRED DW 100
     TWO DB 2
     ServicePercentage DW 10
     SSTPercentage DW 6
     DeliveryFee DW 20
+    ;--messages
     PurchaseIndexMsg DB "Enter your choice (01-12): $"
     PurchaseQuantityMsg DB "Enter purchase quantity (01-99): $"
     InvalidPurchaseIndexMsg DB "Invalid Choice! Pls Re-enter.$"
@@ -37,11 +39,15 @@
     ContinueMsg DB "Continue purchase? (Y to continue) $"
     DeliveryMsg DB "Do you want to have delivary service ? (Y to choose) $"
     DeliveryChoose DB ?
+
+    ;--indexing
     PurchaseCount DB 0
+    CalculateSubtotalIndex DW 0
+
+    ;--storing data
     PurchasingItem DB 20 DUP (?)
     PurchaseQuantity DB 20 DUP (?)
     Subtotal DW 0
-    CalculateSubtotalIndex DW 0
     SST_QUOTIENT DW 0
     SST_REMAINDER DW 0
     SERVICE_QUOTIENT DW 0
