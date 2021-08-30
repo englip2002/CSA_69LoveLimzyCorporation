@@ -27,6 +27,7 @@
 	;---Storing data
     PurchasingItem      DB 20 DUP (?)
     PurchaseQuantity    DB 20 DUP (?)
+    prodSold            DB 12 DUP (0)
     Subtotal            DW 0
     SST_QUOTIENT        DW 0
     SST_REMAINDER       DW 0
@@ -96,7 +97,9 @@
 MAIN PROC
 	MOV AX, @DATA
     MOV DS, AX
-	
+        ;--initialize index to 0 (for 2nd time loop)
+        MOV PurchaseCount,0
+        MOV CalculateSubtotalIndex, 0
 	 DISPLAY_PRODUCT_LIST:
         MOV CH,0
         MOV CL,prodNameLength
@@ -196,7 +199,7 @@ MAIN PROC
 		MUL tenB        ;--IF INPUT 1 THEN BECOME 10
 	
 		MOV BH,0
-		MOV BL,PurchaseCount ;--MOVE THE PurchaseCount(index) TO REGISTER
+		MOV BL,PurchaseCount ;--MOVE THE index of PurchaseCount TO REGISTER
 		MOV PurchasingItem[BX], AL ;--SAVE TO PurchasingItem[PurchaseCount]
 		
 		MOV AH,01H
@@ -209,7 +212,7 @@ MAIN PROC
 		LEA DX,newline
 		INT 21H
 	
-		MOV DL,PurchasingItem[BX]    ;--COMPARE IF GREATER THAN 12 OR LOWER THAN 1 JMP InvalidItem
+		MOV DL,PurchasingItem[BX]    ;--COMPARE IF GREATER THAN 12 OR LOWER THAN 1 JMP InvalidItem(0 and 11 because -1 arld)
 		CMP DL,11
 		JA InvalidItem
 		CMP DL,0
@@ -278,7 +281,7 @@ MAIN PROC
 		MOV DL,PurchaseQuantity[BX]    ;--GET THE PurchaseQuantity 
 		MOV BH,0                       ;--CHANGE BX TO INDEX OF Purchasing Item's Index 
 		MOV BL,PurchasingItem[BX]
-		CMP DL,prodQuantities[BX]      ;--COMPARE THE QUANTITY(IF PurchaseQuantity > ProdQuantity : do following)
+		CMP DL,prodQuantities[BX]      ;--COMPARE THE QUANTITY (IF PurchaseQuantity > ProdQuantity : call re-enter)
 		JB  SubQuantity
 	
 		MOV AH,09H
@@ -301,13 +304,15 @@ MAIN PROC
 		;--TO SUBSTARCT THE NUMBER OF STOCK WITH ITEM
 		MOV BH,0
 		MOV BL,PurchaseCount           ;--CHANGE THE INDEX BACK TO PurchaseCount (Current Purchase)
-		MOV DL,PurchaseQuantity[BX]    ;--MOVE PurchaseQuantity[PurchaseCount] TO DL
+		MOV DL,PurchaseQuantity[BX]    ;--MOVE PurchaseQuantity[PurchaseCount Index] TO DL 
+                                       ;exp: PurchaseQuantity[0]=12 (12 is quantity of purchase input just now) 
 	
 		MOV BH,0
 		MOV BL,PurchasingItem[BX]      ;--CHANGE BX TO INDEX OF Purchasing Item's index 
+                                       ;exp: PurchasingItem[0]=01 (01 is item of purchase(Athens) input just now) 
 		SUB prodQuantities[BX],DL      ;--SUBSTARCT THE prodQuantities[Index of item] THAT IN POSITION WITH PurchaseQuantity
-	
-	
+        ADD prodSold[BX],DL            ;--RECORD THE quantity of product sold for summary purpose
+
 		INC PurchaseCount ;--INCREASE INDEX 
 	
 		;--INPUT WEATHER CONTINUE OR NOT
