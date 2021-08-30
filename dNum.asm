@@ -3,18 +3,13 @@
 .MODEL SMALL
 .STACK 100
 .DATA
-    tenW DW 10
-    displayStack DW 5 DUP (0)
-    n DW 12345
+
 .CODE
 MAIN PROC
     MOV AX, @DATA
     MOV DS, AX
 
-    ; How to use:
-    ; Move the number to AX
-    ; Call DisplayNum
-    MOV AX, n
+    MOV AX, 12345
     CALL DisplayNum
 
     MOV AX, 4C00H
@@ -23,24 +18,22 @@ MAIN ENDP
 
 ; Max display: 65535 (1 word)
 DisplayNum PROC
-    MOV DI, 0
+    MOV CX, 0
     displayIntLoop:
         MOV DX, 0
-        DIV tenW
-        MOV displayStack[DI], DX
-        INC DI
+        MOV BX, 10
+        DIV BX
+        PUSH DX
+        INC CX
         CMP AX, 0
         JNE displayIntLoop
 
+    MOV AH, 02H
     doneLoop:
-        DEC DI
-        MOV DX, displayStack[DI]
-        MOV AH, 02H
+        POP DX
         ADD DL, 30H
         INT 21H
-        MOV displayStack[DI], 0
-        CMP DI, 0
-        JNE doneLoop
+    LOOP doneLoop
     RET
 DisplayNum ENDP
 
