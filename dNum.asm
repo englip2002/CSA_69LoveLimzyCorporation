@@ -9,7 +9,8 @@ MAIN PROC
     MOV AX, @DATA
     MOV DS, AX
 
-    MOV AX, 12345
+    MOV AX, 25570
+    SUB AX, 56344
     CALL DisplayNum
 
     MOV AX, 4C00H
