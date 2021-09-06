@@ -6,47 +6,45 @@
 .MODEL SMALL
 .STACK 100
 .DATA      
-	newline            DB 0DH,0AH,"$"
+	newline            DB 13,10,"$"
 	
 	;---Program Title
-	progTitleLine1     DB "//***********************************************************\\$"
-	progTitleLine2     DB "\\***********************************************************//$"
-	progTitle          DB "| 69 LOVE LIMZY CORPORATION SDN BHD ||$"
-	
-	progTitle1         DB "[   __ __               _                     __      __      ]$"
-	progTitle2         DB "[  /_ (__)  /      _   / )  _     _ __/'     (  _/   / _)/ _/ ]$"
-	progTitle3         DB "[ (__)__/  (__()\/(-  (__()/ /)()/ (///()/) __)(//) /(_)/)(/  ]$"
-	progTitle4         DB "[                           /                                 ]$"
+	progTitle          DB       "//***********************************************************\\"
+	                   DB 13,10,"[   __ __               _                     __      __      ]"
+	                   DB 13,10,"[  /_ (__)  /      _   / )  _     _ __/'     (  _/   / _)/ _/ ]"
+	                   DB 13,10,"[ (__)__/  (__()\/(-  (__()/ /)()/ (///()/) __)(//) /(_)/)(/  ]"
+	                   DB 13,10,"[                           /                                 ]"
+					   DB 13,10,"\\***********************************************************//$"
 
 	
 	;---Login
-	loginTitle         DB " LOGIN$"
-	loginLine          DB "---------------------------------------$"
+	loginTitle         DB "LOGIN"
+	                   DB 13,10,"---------------------------------------$"
 	promptId           DB "   Enter ID       > $"
 	promptPassword 	   DB "   Enter Password > $"
 	invalidLoginMsg    DB "   Invalid ID or Password!!$"
-	loginSuccessMsg    DB "Welcome!!!$"
+	loginSuccessMsg    DB 13,10,"<------------ Welcome!! -------------->$"
 	validId            DB "user123"
 	validPassword      DB "psw1234"
 	idEntered          DB 7 DUP(?)
 	passwordEntered    DB 7 DUP(?)
 	
 	;---Menu
-	menuTitle          DB "              MAIN MENU$"
-	menuLine           DB "=======================================$"
-	menu1              DB " |  [1] Display Product Information  |$"
-	menu2              DB " |  [2] Purchase                     |$"
-	menu3              DB " |  [3] Sales Summary                |$"
-	menu4              DB " |  [4] Product Maintenance          |$"
-	menu5              DB " |  [5] Exit Program                 |$"
+	menuList           DB 13,10,"              MAIN MENU"
+	                   DB 13,10,"======================================="
+	                   DB 13,10," |  [1] Display Product Information  |"
+	                   DB 13,10," |  [2] Purchase                     |"
+	                   DB 13,10," |  [3] Sales Summary                |"
+	                   DB 13,10," |  [4] Product Maintenance          |"
+	                   DB 13,10," |  [5] Exit Program                 |"
+					   DB 13,10,"=======================================$"
 	promptMenuOpt      DB "Enter your option (1-5) > $"
 	invalidMenuOptMsg  DB "Invalid Option!!$"
 	Op1                DB "Display Product Information$"
 	Op2                DB "Purchase$"
 	Op3                DB "Sales Summary$"
 	Op4                DB "Product Maintenance$"
-	Op5                DB "Bye...$"
-	
+	Op5                DB 13,10,"<----- Bye..See You Next Time... ----->$"
 .CODE
 MAIN PROC
 	MOV AX,@DATA
@@ -54,51 +52,7 @@ MAIN PROC
 	
 	;------Program Title
 	MOV AH,09H
-	LEA DX,progTitleLine1
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,progTitle1
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,progTitle2
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,progTitle3
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,progTitle4
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,progTitleLine2
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
+	LEA DX,progTitle
 	INT 21H
 	
 	MOV AH,09H
@@ -109,14 +63,6 @@ MAIN PROC
 	;------Login
 	MOV AH,09H
 	LEA DX,loginTitle
-	INT 21H
-		
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-		
-	MOV AH,09H
-	LEA DX,loginLine
 	INT 21H
 		
 	MOV AH,09H
@@ -211,188 +157,160 @@ MAIN PROC
 			MOV AH,09H
 			LEA DX,newline
 			INT 21H
+			
+		CALL MENU
 	
 	
-	;------Menu
-	Menu:	
+		MOV AX,4C00H
+		INT 21H
+MAIN ENDP
+
+;---Menu
+MENU PROC	
+	DisplayMenu:
+		MOV AH,09H
+		LEA DX,menuList
+		INT 21H
+	
 		MOV AH,09H
 		LEA DX,newline
 		INT 21H
 	
+	InputOpt:
 		MOV AH,09H
-		LEA DX,menuTitle
+		LEA DX,promptMenuOpt
+		INT 21H
+		
+		MOV AH,01H
+		INT 21H
+		SUB AL,30H
+		
+		CMP AL,1
+		JE Option1
+		CMP AL,2
+		JE Option2
+		CMP AL,3
+		JE Option3
+		CMP AL,4
+		JE Option4
+		CMP AL,5
+		JNE InvalidOption
+		JMP Option5
+
+	InvalidOption:
+		MOV AH,09H
+		LEA DX,newline
+		INT 21H
+		
+		MOV AH,09H
+		LEA DX,invalidMenuOptMsg
 		INT 21H
 		
 		MOV AH,09H
 		LEA DX,newline
 		INT 21H
 		
-		MOV AH,09H
-		LEA DX,menuLine
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,menu1
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,menu2
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,menu3
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,menu4
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,menu5
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,menuLine
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		InputOpt:
-			MOV AH,09H
-			LEA DX,promptMenuOpt
-			INT 21H
-			
-			MOV AH,01H
-			INT 21H
-			SUB AL,30H
-			
-			CMP AL,1
-			JE Opt1
-			CMP AL,2
-			JE Opt2
-			CMP AL,3
-			JE Opt3
-			CMP AL,4
-			JE Opt4
-			CMP AL,5
-			JNE InvalidOption
-			JMP Opt5
+		JMP InputOpt
+
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
 	
-		InvalidOption:
-			MOV AH,09H
-			LEA DX,newline
-			INT 21H
-			
-			MOV AH,09H
-			LEA DX,invalidMenuOptMsg
-			INT 21H
-			
-			MOV AH,09H
-			LEA DX,newline
-			INT 21H
-			
-			JMP InputOpt
+	Option1: 
+		CALL OPT1
+		JMP DisplayMenu
+	
+	Option2: 
+		CALL OPT2
+		JMP DisplayMenu
+		
+	Option3: 
+		CALL OPT3
+		JMP DisplayMenu
+		
+	Option4: 
+		CALL OPT4
+		JMP DisplayMenu
+		
+	Option5: 
+		CALL OPT5
+	
+	RET
+MENU ENDP
+
+OPT1 PROC
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+	
+	MOV AH,09H
+	LEA DX,Op1
+	INT 21H
 	
 	MOV AH,09H
 	LEA DX,newline
 	INT 21H
 	
-	Opt1:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
+	RET
+OPT1 ENDP
+
+OPT2 PROC
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+
+	MOV AH,09H
+	LEA DX,Op2
+	INT 21H	
 	
-		MOV AH,09H
-		LEA DX,Op1
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		JMP Menu
-		
-	Opt2:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-
-		MOV AH,09H
-		LEA DX,Op2
-		INT 21H	
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		JMP Menu
-		
-	Opt3:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-
-		MOV AH,09H
-		LEA DX,Op3
-		INT 21H	
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H		
-		
-		JMP Menu
-		
-	Opt4:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
 	
-		MOV AH,09H
-		LEA DX,Op4
-		INT 21H	
+	RET
+OPT2 ENDP
 
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		JMP Menu
-		
-	Opt5:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
+OPT3 PROC
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
 
-		MOV AH,09H
-		LEA DX,Op5
-		INT 21H
+	MOV AH,09H
+	LEA DX,Op3
+	INT 21H	
 	
-		MOV AX,4C00H
-		INT 21H
-MAIN ENDP
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H		
+	
+	RET
+OPT3 ENDP
+
+OPT4 PROC
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+	
+	MOV AH,09H
+	LEA DX,Op4
+	INT 21H	
+
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+	
+	RET
+OPT4 ENDP
+
+OPT5 PROC
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+
+	MOV AH,09H
+	LEA DX,Op5
+	INT 21H
+	RET
+OPT5 ENDP
+
 END MAIN
