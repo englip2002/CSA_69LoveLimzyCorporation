@@ -15,15 +15,32 @@
     q2LookupArr DW 0, 6553, 13107, 19660, 26214, 32768, 39321, 45875, 52428, 58982
     r2LookupArr DB 0, 6, 2, 8, 4, 0, 6, 2, 8, 4
     prevCarry DB 0
+
+    prodPrices DW 50, 198, 98, 128, 48, 108, 128, 118, 208, 98, 298, 298
+    prodQuantities DB 50, 20, 25, 30, 35, 20, 25, 15, 15, 20, 15, 10
+    prodSold DB 12 DUP (0)
     
 .CODE
 MAIN PROC
     MOV AX, @DATA
     MOV DS, AX
+    
+    ; Test data
+    MOV prodSold[0], 10
+    MOV prodSold[3], 15
+    MOV prodSold[5], 32
+    MOV prodSold[6], 17
+    MOV prodSold[10], 2
+
 
     MOV AX, 12345
-    MOV BX, 30
+    MOV BX, 10
     MUL BX
+
+    MOV BX, 3
+    XOR AX, AX
+    MOV AL, prodSold[BX]
+    MUL prodPrices[BX]
     CALL Display32BitNum
 
     MOV AX, 4C00H
@@ -124,13 +141,18 @@ Display32BitNum PROC
         MOV BX, 1   ; BX = 1: has leading zeros, 0: no more leading zeros
         print32BitNumLoop:
             POP DX
+            CMP CX, 1
+            JE print32BitNumPrint
             CMP DX, 0
             JE print32BitNumIsZero
             JMP print32BitNumPrint
 
         print32BitNumIsZero:
-            CMP BX, 1
-            JE print32BitNumLoopEnd
+            CMP BX, 0
+            JE print32BitNumPrint
+            MOV DL, ' '
+            INT 21H
+            JMP print32BitNumLoopEnd
 
         print32BitNumPrint:
             XOR BX, BX
@@ -138,7 +160,6 @@ Display32BitNum PROC
             INT 21H
         print32BitNumLoopEnd:
         LOOP print32BitNumLoop
-        
     RET
 Display32BitNum ENDP
 
