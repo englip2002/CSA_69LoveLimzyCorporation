@@ -1,5 +1,6 @@
 .MODEL SMALL
 .STACK 100
+.386
 .DATA
 	;---Product
 	totalProducts    DB 12
@@ -135,8 +136,6 @@ MAIN PROC
 
             LOOP DISPLAY_PRODUCT_NAME
             JMP DISPLAY_CURRENT_STOCK
-        DISPLAY_PROD_MIDDLE:
-            JMP DISPLAY_PRODUCT_LIST
 
         DISPLAY_CURRENT_STOCK:
             ;--DISPLAY STOCK
@@ -179,7 +178,7 @@ MAIN PROC
             INC currProdIndex
             MOV BL, currProdIndex
             CMP BL, totalProducts
-            JNE DISPLAY_PROD_MIDDLE 
+            JNE DISPLAY_PRODUCT_LIST 
     
 		;--new line
 		MOV AH,09H
@@ -297,8 +296,6 @@ MAIN PROC
 		INT 21H
 		JMP InputPurchaseQuantity
 	
-	MIDDLEPOINT:
-		JMP InputPurchase
 	
 	SubQuantity:
 		;--TO SUBSTARCT THE NUMBER OF STOCK WITH ITEM
@@ -332,9 +329,9 @@ MAIN PROC
 		INT 21H
 	
 		CMP AL,'Y'       ;--IF CONTINUE == Y || y, JUMP TO BEGINING
-		JE MIDDLEPOINT
+		JE InputPurchase
 		CMP AL,'y' 
-		JE MIDDLEPOINT
+		JE InputPurchase
 	
 		MOV AH,09H
 		LEA DX,newline
