@@ -110,7 +110,7 @@
 	purchaseBill        DB "                 Bill$"
 	purchaseBillLine    DB "--------------------------------------$"
     purchaseBillItemMsg DB "Item           Quantity      Subtotal$"
-	subtotalMsg         DB "Subtotal                :  RM$"
+	subtotalMsg         DB "                        :  RM$"
 	sstMsg              DB "SST (6%)                :  RM$"
 	serviceChargeMsg    DB "Service Charge (10%)    :  RM$"
 	totalAmountMsg      DB "Total Amount            :  RM$"
@@ -889,7 +889,7 @@ OPT2 PROC
 		MUL SSTPercentage
 		DIV HUNDRED
 		MOV SST_REMAINDER,DX     ;MUL DX,AX
-		MOV SST_QUOTIENT,AX    ;DIV DX,AX(R,Q)
+		MOV SST_QUOTIENT,AX      ;DIV DX,AX(R,Q)
 	
 		MOV AX,Subtotal
 		MUL ServicePercentage
@@ -983,12 +983,19 @@ OPT2 PROC
         ADD DL,30H
         INT 21H
 
-        MOV CX,12
+        MOV CX,10
         LOOP_SPACE2:
             MOV AH,02H
             MOV DL," "
             INT 21H
         LOOP LOOP_SPACE2
+
+        MOV AH,02H
+        MOV DL,"R"
+        INT 21H
+        MOV AH,02H
+        MOV DL,"M"
+        INT 21H
 
         MOV AH,0
         MOV AL,PurchasingItem[SI]
@@ -1026,6 +1033,13 @@ OPT2 PROC
 		
 	;------Calculate Rounding Adjustment
     CALCULATE_ROUNDING_ADJUSTMENT:
+    MOV AH,09H
+	LEA DX,purchaseBillLine
+	INT 21H
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+
 	MOV DX,0
 	MOV AX,TOTAL_REMAINDER
 	MOV BH,0
