@@ -108,7 +108,7 @@
 	
 	purchaseBill        DB "                 Bill$"
 	purchaseBillLine    DB "--------------------------------------$"
-    purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
+    purchaseBillItemMsg DB "Item           Quantity      Subtotal$"
 	subtotalMsg         DB "Subtotal                :  RM$"
 	sstMsg              DB "SST (6%)                :  RM$"
 	serviceChargeMsg    DB "Service Charge (10%)    :  RM$"
@@ -982,7 +982,7 @@ OPT2 PROC
         ADD DL,30H
         INT 21H
 
-        MOV CX,14
+        MOV CX,12
         LOOP_SPACE2:
             MOV AH,02H
             MOV DL," "
@@ -996,7 +996,20 @@ OPT2 PROC
         
         MOV AX,prodPrices[BX]
         MUL purchaseQuantity[SI]
+		CALL AmountFormatting
         CALL DisplayNum
+		
+		MOV AH,02H
+        MOV DL,"."
+        INT 21H
+		
+		MOV AH,02H
+        MOV DL,"0"
+        INT 21H
+		
+		MOV AH,02H
+        MOV DL,"0"
+        INT 21H
         
         MOV AH,09H
         LEA DX,newline
