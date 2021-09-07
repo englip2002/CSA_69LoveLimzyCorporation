@@ -1,5 +1,6 @@
 .MODEL SMALL
 .STACK 100
+.386
 .DATA
     newline            DB 13,10,"$"
 	
@@ -68,8 +69,8 @@
 
     ; Option 2 (Purchase) Variables
 	;---Storing data
-    PurchasingItem      DB 20 DUP (?)
-    PurchaseQuantity    DB 20 DUP (?)
+    PurchasingItem      DB 20 DUP ("?")
+    PurchaseQuantity    DB 20 DUP ("?")
     Subtotal            DW 0
     SST_QUOTIENT        DW 0
     SST_REMAINDER       DW 0
@@ -102,11 +103,12 @@
     InsufficientStockMsg    DB "Stock Insufficient! Pls Re-enter$"
     InvalidQuantityMsg      DB "Invalid Quantity! Pls Re-enter$"
     ContinueMsg             DB "Continue purchase? (Y to continue) $"
-    DeliveryMsg             DB "Do you want to have delivary service ? (Y to choose) $"
+    DeliveryMsg             DB "Do you want to have delivary service (RM 20) ? (Y to choose) $"
     DeliveryChoose          DB ?
 	
 	purchaseBill        DB "                 Bill$"
 	purchaseBillLine    DB "--------------------------------------$"
+    purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
 	subtotalMsg         DB "Subtotal                :  RM$"
 	sstMsg              DB "SST (6%)                :  RM$"
 	serviceChargeMsg    DB "Service Charge (10%)    :  RM$"
@@ -525,6 +527,21 @@ OPT2 PROC
     MOV CalculateSubtotalIndex, 0
     MOV currProdIndex, 0
     MOV currProdNameIndex, 0
+
+    MOV CX, 20
+    MOV SI, 0
+    clearPurchasingItem:
+        MOV PurchasingItem[SI], "?"
+        INC SI
+    LOOP clearPurchasingItem
+
+    MOV CX, 20
+    MOV SI, 0
+    clearPurchaseQuantity:
+        MOV PurchaseQuantity[SI], "?"
+        INC SI
+    LOOP clearPurchaseQuantity
+
     MOV CX, 10
     MOV SI, 0
     clearInputStack:
@@ -569,7 +586,6 @@ OPT2 PROC
             INC currProdNameIndex
 
             LOOP DISPLAY_PRODUCT_NAME
-            JMP DISPLAY_CURRENT_STOCK
 
         DISPLAY_CURRENT_STOCK:
             ;--DISPLAY STOCK
@@ -849,9 +865,9 @@ OPT2 PROC
 		MOV AH,09H
 		LEA DX,newline
 		INT 21H
-	MOV CH,0
-	MOV CL,PurchaseCount
-    MOV CalculateSubtotalIndex, 0
+	    MOV CH,0
+	    MOV CL,PurchaseCount
+        MOV CalculateSubtotalIndex, 0
 	CalculateSub: 
 		MOV BX,CalculateSubtotalIndex
 		MOV AH,0
@@ -897,7 +913,8 @@ OPT2 PROC
 		
 		ADD TOTAL_QUOTIENT,1
 		SUB TOTAL_REMAINDER,100
-		
+
+        
 	Display1:
 		MOV AH,09H
 		LEA DX,newline
@@ -919,8 +936,80 @@ OPT2 PROC
 		LEA DX,newline
 		INT 21H
 
-	
+    ;--Display item bought
+        MOV AH,09H
+        LEA DX,purchaseBillItemMsg
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,newline
+        INT 21H
+
+        MOV SI,0
+        DISPLAY_PURCHASED_ITEM:
+        MOV AL,PurchasingItem[SI]
+        MUL prodNameLength
+        MOV BX,AX
+
+        MOV CH,0
+        MOV CL,prodNameLength
+        LOOP_PURCHASED_ITEM_NAME:
+            MOV AH,02H
+            MOV DL,prodNames[BX]
+            INT 21H
+            INC BX
+        LOOP LOOP_PURCHASED_ITEM_NAME
+
+        MOV CX,3
+        LOOP_SPACE1:
+            MOV AH,02H
+            MOV DL," "
+            INT 21H
+        LOOP LOOP_SPACE1
+
+        MOV AH,0
+        MOV AL,PurchaseQuantity[SI]
+        DIV tenB
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV CX,14
+        LOOP_SPACE2:
+            MOV AH,02H
+            MOV DL," "
+            INT 21H
+        LOOP LOOP_SPACE2
+
+        MOV AH,0
+        MOV AL,PurchasingItem[SI]
+        MUL TWO                    ;--to get real index of item 
+        MOV BX,AX
+        
+        MOV AX,prodPrices[BX]
+        MUL purchaseQuantity[SI]
+        CALL DisplayNum
+        
+        MOV AH,09H
+        LEA DX,newline
+        INT 21H
+
+        INC SI
+        MOV DL,PurchaseCount
+        CMP PurchasingItem[SI],DL
+        JG CALCULATE_ROUNDING_ADJUSTMENT
+        JMP DISPLAY_PURCHASED_ITEM
+		
 	;------Calculate Rounding Adjustment
+    CALCULATE_ROUNDING_ADJUSTMENT:
 	MOV DX,0
 	MOV AX,TOTAL_REMAINDER
 	MOV BH,0
