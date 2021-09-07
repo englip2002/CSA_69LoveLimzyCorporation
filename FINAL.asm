@@ -71,6 +71,7 @@
 	;---Storing data
     PurchasingItem      DB 20 DUP ("?")
     PurchaseQuantity    DB 20 DUP ("?")
+	PurchasePrice       DW 0
     Subtotal            DW 0
     SST_QUOTIENT        DW 0
     SST_REMAINDER       DW 0
@@ -996,8 +997,10 @@ OPT2 PROC
         
         MOV AX,prodPrices[BX]
         MUL purchaseQuantity[SI]
-		CALL AmountFormatting
-        CALL DisplayNum
+		MOV PurchasePrice,AX
+        CALL AmountFormatting
+		MOV AX,PurchasePrice
+		CALL DisplayNum
 		
 		MOV AH,02H
         MOV DL,"."
