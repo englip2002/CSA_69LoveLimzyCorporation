@@ -109,8 +109,8 @@
 	
 	purchaseBill        DB "                 Bill$"
 	purchaseBillLine    DB "--------------------------------------$"
-    purchaseBillItemMsg DB "Item           Quantity      Subtotal$"
-	subtotalMsg         DB "                        :  RM$"
+    purchaseBillItemMsg DB "Item           Quantity    Subtotal$"
+	subtotalMsg         DB "                           RM$"
 	sstMsg              DB "SST (6%)                :  RM$"
 	serviceChargeMsg    DB "Service Charge (10%)    :  RM$"
 	totalAmountMsg      DB "Total Amount            :  RM$"
