@@ -524,20 +524,28 @@ OPT2 PROC
     INT 21H
 
     ;--initialize index to 0 (for 2nd time loop)
+    MOV PurchasePrice,0       
+    MOV Subtotal,0            
+    MOV SST_QUOTIENT,0        
+    MOV SST_REMAINDER,0       
+    MOV SERVICE_QUOTIENT,0    
+    MOV SERVICE_REMAINDER,0   
+    MOV TOTAL_QUOTIENT,0     
+    MOV TOTAL_REMAINDER,0     
     MOV PurchaseCount,0
     MOV CalculateSubtotalIndex, 0
     MOV currProdIndex, 0
     MOV currProdNameIndex, 0
 
-    MOV CX, 20
     MOV SI, 0
+    MOV CX, 20
     clearPurchasingItem:
         MOV PurchasingItem[SI], "?"
         INC SI
     LOOP clearPurchasingItem
-
-    MOV CX, 20
+    
     MOV SI, 0
+    MOV CX, 20
     clearPurchaseQuantity:
         MOV PurchaseQuantity[SI], "?"
         INC SI
