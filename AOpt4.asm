@@ -63,7 +63,7 @@ MAIN PROC
         MOV CL, 10
         MUL CL
         ADD AL, BH
-        CMP AL, 0
+        CMP AL, 1
         JB Opt4InvalidInputID
         CMP AL, 12
         JA Opt4InvalidInputID
