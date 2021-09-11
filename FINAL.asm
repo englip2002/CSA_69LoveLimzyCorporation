@@ -91,7 +91,7 @@
     HUNDRED           DW 100
     TWO               DB 2
     ServicePercentage DW 10
-    SSTPercentage     DW 6
+    SSTPercentage     DW 5
     DeliveryFee       DW 20
 	
 	;---Messages
@@ -101,7 +101,7 @@
 	PurchaseIndexMsg        DB "Enter your choice (01-12): $"
     PurchaseQuantityMsg     DB "Enter purchase quantity (01-99): $"
     InvalidPurchaseIndexMsg DB "Invalid Choice! Pls Re-enter.$"
-    InsufficientStockMsg    DB "Stock Insufficient! Pls Re-enter$"
+    InsufficientStockMsg    DB "Stock Insufficient! Pls Re-enter.$"
     InvalidQuantityMsg      DB "Invalid Quantity! Pls Re-enter$"
     ContinueMsg             DB "Continue purchase? (Y to continue) $"
     DeliveryMsg             DB "Do you want to have delivary service (RM 20) ? (Y to choose) $"
@@ -112,7 +112,7 @@
     purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
     deliveryTotalMsg    DB "Delivery                   RM   20.00$"
 	subtotalMsg         DB "                           RM$"
-	sstMsg              DB "SST (6%)                :  RM$"
+	sstMsg              DB "SST (5%)                :  RM$"
 	serviceChargeMsg    DB "Service Charge (10%)    :  RM$"
 	totalAmountMsg      DB "Total Amount            :  RM$"
 	roundingMsg         DB "Rounding Adjustment     : $"
@@ -686,33 +686,34 @@ OPT2 PROC
 		MOV AH,01H
 		INT 21H
 		SUB AL,30H
-        CMP AL, 9
+        CMP AL,9                     ;--MEANS IS NOT DIGIT
         JA InvalidItem
-		MUL tenB        ;--IF INPUT 1 THEN BECOME 10
+		MUL tenB                     ;--IF INPUT 1 THEN BECOME 10
 	
 		MOV BH,0
 		MOV BL,continuePurchaseCount ;--MOVE THE index of PurchaseCount TO REGISTER
-		MOV PurchasingItem[BX], AL ;--SAVE TO PurchasingItem[PurchaseCount]
+		MOV PurchasingItem[BX], AL   ;--SAVE TO PurchasingItem[PurchaseCount]
 		
 		MOV AH,01H
 		INT 21H
 		SUB AL,30H
-        CMP AL, 9
+        CMP AL, 9                    ;--MEANS IS NOT DIGIT
         JA InvalidItem
-		ADD PurchasingItem[BX],AL ;--IF INPUT 2, ADD B4 ONE BECOME 12
-		SUB PurchasingItem[BX],1 ;--TO DECREASE 1 SINCE USER CHOICE START FROM 1
+		ADD PurchasingItem[BX],AL    ;--IF INPUT 2, ADD B4 ONE BECOME 12
+		SUB PurchasingItem[BX],1     ;--TO DECREASE 1 SINCE USER CHOICE START FROM 1 (INDEX)
 	
 		MOV AH,09H
 		LEA DX,newline
 		INT 21H
-	
-		MOV DL,PurchasingItem[BX]    ;--COMPARE IF GREATER THAN 12 OR LOWER THAN 1 JMP InvalidItem(0 and 11 because -1 arld)
-		CMP DL,11
+                                     ;-- BX = continuePurchaseCount
+		MOV DL,totalProducts         ;--COMPARE IF GREATER THAN 12 OR LOWER THAN 1 JMP InvalidItem(0 and 11 because -1 arld)
+        SUB DL,1
+		CMP PurchasingItem[BX],DL    ;--11 IS THE TOTALPRODUCT - 1
 		JA InvalidItem
-		MOV BX, 0
-        MOV BL, DL
-        MOV DL, prodQuantities[BX]
-        CMP DL, 0
+
+        MOV BL, PurchasingItem[BX]   ;--TO GET THE INDEX OF PURCHASING PRODUCT
+        MOV BH, 0
+        CMP prodQuantities[BX], 0    ;--TO FIND OUT THE QUANTITY IS 0 ALRD OR NOT
         JE ItemNoStock
 		JMP InputPurchaseQuantity    ;--ELSE JMP InputPurchseQuantity
 	
@@ -726,6 +727,10 @@ OPT2 PROC
         JMP InputPurchase
 
 	InvalidItem:
+    	MOV AH,09H
+		LEA DX,newline
+		INT 21H
+
 		MOV AH,09H
 		LEA DX,InvalidPurchaseIndexMsg
 		INT 21H
@@ -752,23 +757,23 @@ OPT2 PROC
 		MOV AH,01H
 		INT 21H
 		SUB AL,30H
-        CMP AL, 9
+        CMP AL, 9      ;--MEANS IS NOT DIGIT
         JA PrintInvalidQuantityMessage
 		MUL tenB       ;--IF INPUT 1 THEN BECOME 10
 	
 		MOV BH,0
-		MOV BL,continuePurchaseCount       ;--MOVE THE PurchaseCount(index) TO REGISTER
+		MOV BL,continuePurchaseCount   ;--MOVE THE continuePurchaseCount TO BX
 		MOV PurchaseQuantity[BX], AL   ;--SAVE TO PurchaseQuantity[PurchaseCount]
 	
 		MOV AH,01H
 		INT 21H
 		SUB AL,30H
-        CMP AL, 9
+        CMP AL, 9                     ;--MEANS IS NOT DIGIT
         JA PrintInvalidQuantityMessage
 		ADD PurchaseQuantity[BX],AL   ;--ADD SECOND DIGIT TO PurchaseQuantity
 	
-		CMP PurchaseQuantity[BX],1   ;--CHECK IF NUMBER IS LESS THAN 1
-		JL PrintInvalidQuantityMessage
+		CMP PurchaseQuantity[BX],0    ;--CHECK IF NUMBER IS LESS THAN 1
+		JE PrintInvalidQuantityMessage
 	
 		JMP CheckQuantity
 	
@@ -787,41 +792,33 @@ OPT2 PROC
 	
 		JMP InputPurchaseQuantity
 	CheckQuantity:
-		;--CHECKING QUANTITY 
+		;--CHECKING QUANTITY           ;--BX=continuePurchaseCount
 		MOV DL,PurchaseQuantity[BX]    ;--GET THE PurchaseQuantity 
 		MOV BH,0                       ;--CHANGE BX TO INDEX OF Purchasing Item's Index 
 		MOV BL,PurchasingItem[BX]
-		CMP DL,prodQuantities[BX]      ;--COMPARE THE QUANTITY (IF PurchaseQuantity > ProdQuantity : call re-enter)
+		CMP DL,prodQuantities[BX]      ;--COMPARE THE QUANTITY (IF PurchaseQuantity <= ProdQuantity : continue step)
 		JBE SubQuantity
 	
 		MOV AH,09H
 		LEA DX,newline
 		INT 21H
 	
-		MOV AH,09H
-		LEA DX,InsufficientStockMsg
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		JMP InputPurchaseQuantity
-	
-	
+        JMP ItemNoStock
+
 	SubQuantity:
 		;--TO SUBSTARCT THE NUMBER OF STOCK WITH ITEM
 		MOV BH,0
-		MOV BL,continuePurchaseCount           ;--CHANGE THE INDEX BACK TO PurchaseCount (Current Purchase)
-		MOV DL,PurchaseQuantity[BX]    ;--MOVE PurchaseQuantity[PurchaseCount Index] TO DL 
-                                       ;exp: PurchaseQuantity[0]=12 (12 is quantity of purchase input just now) 
+		MOV BL,continuePurchaseCount   ;--CHANGE THE INDEX BACK TO continuePurchaseCount (Current Purchase)
+		MOV DL,PurchaseQuantity[BX]    ;--GET PurchaseQuantity OF THE CURRENT PURCHASE
+                                       ;--exp: PurchaseQuantity[0]=12 (12 is quantity of purchase input just now) 
 	
 		MOV BH,0
 		MOV BL,PurchasingItem[BX]      ;--CHANGE BX TO INDEX OF Purchasing Item's index 
                                        ;exp: PurchasingItem[0]=01 (01 is item of purchase(Athens) input just now) 
-		SUB prodQuantities[BX],DL      ;--SUBSTARCT THE prodQuantities[Index of item] THAT IN POSITION WITH PurchaseQuantity
+		SUB prodQuantities[BX],DL      ;--SUBSTARCT THE prodQuantities[Index of item] WITH THE RELATED PurchaseQuantity
         ADD prodSold[BX],DL            ;--RECORD THE quantity of product sold for summary purpose
 
-		INC continuePurchaseCount ;--INCREASE INDEX 
+		INC continuePurchaseCount      ;--INCREASE INDEX 
 	
 		;--INPUT WHETHER CONTINUE OR NOT
 		MOV AH,09H
@@ -831,14 +828,10 @@ OPT2 PROC
 		MOV AH,09H
 		LEA DX, ContinueMsg
 		INT 21H
-	
+
 		MOV AH,01H
 		INT 21H
-	
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
+		
 		CMP AL,'Y'       ;--IF CONTINUE == Y || y, JUMP TO BEGINING
 		JE InputPurchaseJmp
 		CMP AL,'y' 
@@ -849,13 +842,17 @@ OPT2 PROC
         MOV AH, 09H
         LEA DX, newline
         INT 21H
+        LEA DX, newline
+        INT 21H
         JMP InputPurchase
 
         InputPurchaseNoJmp:
 		MOV AH,09H
 		LEA DX,newline
 		INT 21H
-	
+        LEA DX, newline
+        INT 21H
+
 		;--DELIVERY ?
 		MOV AH,09H
 		LEA DX, DeliveryMsg
@@ -882,20 +879,20 @@ OPT2 PROC
 	    MOV CH,0
 	    MOV CL,continuePurchaseCount
         MOV CalculateSubtotalIndex, 0
-	CalculateSub: 
-		MOV BX,CalculateSubtotalIndex
-		MOV AH,0
-		MOV DH,0                    ;--AL=mul result, BX=real index, CX=loop, DX=purchaseQuantity
-		MOV DL,PurchaseQuantity[BX] ;--get purchase quantity and save to DL(need to get first because index changed after this)
-		MOV AL,PurchasingItem[BX] ;--get purchasing item [index] then multiply 2 to get real index
-		MUL TWO
-		MOV BL,AL   ;--real index is store into BX
-	
-		MOV AL,DL            ;--pass the quantity of purchase to AL
-		MUL prodPrices[BX]   ;--Multiply quantity with prodPrices[PurchasingItemIndex]
-		ADD Subtotal,AX      ;--add to subtotal
-		INC CalculateSubtotalIndex
-	LOOP CalculateSub
+	    CalculateSub: 
+		    MOV BX,CalculateSubtotalIndex
+		    MOV AH,0
+		    MOV DH,0                    ;--AL=mul result, BX=real index, CX=loop, DX=purchaseQuantity
+		    MOV DL,PurchaseQuantity[BX] ;--get purchase quantity and save to DL(need to get first because index changed after this)
+		    MOV AL,PurchasingItem[BX] ;--get purchasing item [index] then multiply 2 to get real index
+		    MUL TWO
+		    MOV BL,AL   ;--real index is store into BX
+    
+		    MOV AL,DL            ;--pass the quantity of purchase to AL
+		    MUL prodPrices[BX]   ;--Multiply quantity with prodPrices[PurchasingItemIndex]
+		    ADD Subtotal,AX      ;--add to subtotal
+		    INC CalculateSubtotalIndex
+	    LOOP CalculateSub
 	
 		;CALCULATE SERVICE CHARGE AND SST
 		MOV AX,Subtotal
