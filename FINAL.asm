@@ -109,7 +109,8 @@
 	
 	purchaseBill        DB "                 Bill$"
 	purchaseBillLine    DB "--------------------------------------$"
-    purchaseBillItemMsg DB "Item           Quantity    Subtotal$"
+    purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
+    deliveryTotalMsg    DB "Delivery                   RM   20.00$"
 	subtotalMsg         DB "                           RM$"
 	sstMsg              DB "SST (6%)                :  RM$"
 	serviceChargeMsg    DB "Service Charge (10%)    :  RM$"
@@ -122,8 +123,9 @@
 	thxOrderMsg         DB "Thank you for your order!!$"
 	
 	;--indexing
-    PurchaseCount          DB 0
+    continuePurchaseCount       DB 0
     CalculateSubtotalIndex DW 0
+    numOfPurchased         DB 0
 	
 	;---Output & Input Amounts Used
 	tenB                DB 10
@@ -152,6 +154,9 @@
     opt3TableCellBar DB " | $"
     opt3GrandTotal DW 0, 0   ; First = Upper 16-bits, Second = Lower 16-bits 
     opt3HundredP DB "100.000$"
+
+    ; Option 5 Ending
+    numOfPurchasedMsg DB "The total number of purchased: $"
 
     ; Variables for Display32BitNum Function
     higher16 DW ?
@@ -532,7 +537,7 @@ OPT2 PROC
     MOV SERVICE_REMAINDER,0   
     MOV TOTAL_QUOTIENT,0     
     MOV TOTAL_REMAINDER,0     
-    MOV PurchaseCount,0
+    MOV continuePurchaseCount,0
     MOV CalculateSubtotalIndex, 0
     MOV currProdIndex, 0
     MOV currProdNameIndex, 0
@@ -686,7 +691,7 @@ OPT2 PROC
 		MUL tenB        ;--IF INPUT 1 THEN BECOME 10
 	
 		MOV BH,0
-		MOV BL,PurchaseCount ;--MOVE THE index of PurchaseCount TO REGISTER
+		MOV BL,continuePurchaseCount ;--MOVE THE index of PurchaseCount TO REGISTER
 		MOV PurchasingItem[BX], AL ;--SAVE TO PurchasingItem[PurchaseCount]
 		
 		MOV AH,01H
@@ -752,7 +757,7 @@ OPT2 PROC
 		MUL tenB       ;--IF INPUT 1 THEN BECOME 10
 	
 		MOV BH,0
-		MOV BL,PurchaseCount       ;--MOVE THE PurchaseCount(index) TO REGISTER
+		MOV BL,continuePurchaseCount       ;--MOVE THE PurchaseCount(index) TO REGISTER
 		MOV PurchaseQuantity[BX], AL   ;--SAVE TO PurchaseQuantity[PurchaseCount]
 	
 		MOV AH,01H
@@ -806,7 +811,7 @@ OPT2 PROC
 	SubQuantity:
 		;--TO SUBSTARCT THE NUMBER OF STOCK WITH ITEM
 		MOV BH,0
-		MOV BL,PurchaseCount           ;--CHANGE THE INDEX BACK TO PurchaseCount (Current Purchase)
+		MOV BL,continuePurchaseCount           ;--CHANGE THE INDEX BACK TO PurchaseCount (Current Purchase)
 		MOV DL,PurchaseQuantity[BX]    ;--MOVE PurchaseQuantity[PurchaseCount Index] TO DL 
                                        ;exp: PurchaseQuantity[0]=12 (12 is quantity of purchase input just now) 
 	
@@ -816,7 +821,7 @@ OPT2 PROC
 		SUB prodQuantities[BX],DL      ;--SUBSTARCT THE prodQuantities[Index of item] THAT IN POSITION WITH PurchaseQuantity
         ADD prodSold[BX],DL            ;--RECORD THE quantity of product sold for summary purpose
 
-		INC PurchaseCount ;--INCREASE INDEX 
+		INC continuePurchaseCount ;--INCREASE INDEX 
 	
 		;--INPUT WHETHER CONTINUE OR NOT
 		MOV AH,09H
@@ -875,7 +880,7 @@ OPT2 PROC
 		LEA DX,newline
 		INT 21H
 	    MOV CH,0
-	    MOV CL,PurchaseCount
+	    MOV CL,continuePurchaseCount
         MOV CalculateSubtotalIndex, 0
 	CalculateSub: 
 		MOV BX,CalculateSubtotalIndex
@@ -1034,12 +1039,32 @@ OPT2 PROC
         INT 21H
 
         INC SI
-        MOV DL,PurchaseCount
+        MOV DL,continuePurchaseCount
         CMP PurchasingItem[SI],DL
-        JG CALCULATE_ROUNDING_ADJUSTMENT
+        JG VALIDATE_DELIVERY
         JMP DISPLAY_PURCHASED_ITEM
 		
-	;------Calculate Rounding Adjustment
+    VALIDATE_DELIVERY:
+        CMP DeliveryChoose,"y"
+        JE DISPLAY_DELIVERY_MSG
+        CMP DeliveryChoose,"Y"
+        JE DISPLAY_DELIVERY_MSG
+        JMP CALCULATE_ROUNDING_ADJUSTMENT
+
+    DISPLAY_DELIVERY_MSG:
+        MOV AH,09H
+        LEA DX,newline
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,deliveryTotalMsg
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,newline
+        INT 21H
+
+    ;------Calculate Rounding Adjustment
     CALCULATE_ROUNDING_ADJUSTMENT:
     MOV AH,09H
 	LEA DX,purchaseBillLine
@@ -1368,8 +1393,6 @@ OPT2 PROC
 	JMP InputCash
 	
 	DoneInputCash:
-	
-	
 	;---Calculate Balance
 	MOV AX,CASH_REMAINDER
 	CMP AX,ADJUSTED_REMAINDER
@@ -1449,6 +1472,8 @@ OPT2 PROC
 	LEA DX,newline
 	INT 21H
 	
+    ;--record total number of purchase 
+    INC numOfPurchased
 	RET
 OPT2 ENDP
 
@@ -1748,9 +1773,33 @@ OPT5 PROC
 	LEA DX,newline
 	INT 21H
 
+    MOV AH,09H
+	LEA DX,newline
+	INT 21H
+
+    MOV AH,09H
+	LEA DX,numOfPurchasedMsg
+	INT 21H
+
+    MOV AH,0
+    MOV AL,numOfPurchased
+    DIV tenB
+    MOV BX,AX
+
+    MOV AH,02H
+    MOV DL,BL
+    ADD DL,30H
+    INT 21H
+
+    MOV AH,02H
+    MOV DL,BH
+    ADD DL,30H
+    INT 21H
+
 	MOV AH,09H
 	LEA DX,Op5
 	INT 21H
+
 	RET
 OPT5 ENDP
 

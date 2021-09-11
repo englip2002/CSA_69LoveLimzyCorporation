@@ -75,7 +75,7 @@
 	thxOrderMsg         DB "Thank you for your order!!$"
 	
 	;--indexing
-    PurchaseCount          DB 0
+    continuePurchaseCount          DB 0
     CalculateSubtotalIndex DW 0
 	
 	;---Output & Input Amounts Used
@@ -99,7 +99,7 @@ MAIN PROC
 	MOV AX, @DATA
     MOV DS, AX
         ;--initialize index to 0 (for 2nd time loop)
-        MOV PurchaseCount,0
+        MOV continuePurchaseCount,0
         MOV CalculateSubtotalIndex, 0
 	 DISPLAY_PRODUCT_LIST:
         MOV CH,0
@@ -198,7 +198,7 @@ MAIN PROC
 		MUL tenB        ;--IF INPUT 1 THEN BECOME 10
 	
 		MOV BH,0
-		MOV BL,PurchaseCount ;--MOVE THE index of PurchaseCount TO REGISTER
+		MOV BL,continuePurchaseCount ;--MOVE THE index of PurchaseCount TO REGISTER
 		MOV PurchasingItem[BX], AL ;--SAVE TO PurchasingItem[PurchaseCount]
 		
 		MOV AH,01H
@@ -248,7 +248,7 @@ MAIN PROC
 		MUL tenB       ;--IF INPUT 1 THEN BECOME 10
 	
 		MOV BH,0
-		MOV BL,PurchaseCount       ;--MOVE THE PurchaseCount(index) TO REGISTER
+		MOV BL,continuePurchaseCount       ;--MOVE THE PurchaseCount(index) TO REGISTER
 		MOV PurchaseQuantity[BX], AL   ;--SAVE TO PurchaseQuantity[PurchaseCount]
 	
 		MOV AH,01H
@@ -300,7 +300,7 @@ MAIN PROC
 	SubQuantity:
 		;--TO SUBSTARCT THE NUMBER OF STOCK WITH ITEM
 		MOV BH,0
-		MOV BL,PurchaseCount           ;--CHANGE THE INDEX BACK TO PurchaseCount (Current Purchase)
+		MOV BL,continuePurchaseCount           ;--CHANGE THE INDEX BACK TO PurchaseCount (Current Purchase)
 		MOV DL,PurchaseQuantity[BX]    ;--MOVE PurchaseQuantity[PurchaseCount Index] TO DL 
                                        ;exp: PurchaseQuantity[0]=12 (12 is quantity of purchase input just now) 
 	
@@ -310,7 +310,7 @@ MAIN PROC
 		SUB prodQuantities[BX],DL      ;--SUBSTARCT THE prodQuantities[Index of item] THAT IN POSITION WITH PurchaseQuantity
         ADD prodSold[BX],DL            ;--RECORD THE quantity of product sold for summary purpose
 
-		INC PurchaseCount ;--INCREASE INDEX 
+		INC continuePurchaseCount ;--INCREASE INDEX 
 	
 		;--INPUT WEATHER CONTINUE OR NOT
 		MOV AH,09H
@@ -361,7 +361,7 @@ MAIN PROC
 		LEA DX,newline
 		INT 21H
 	MOV CH,0
-	MOV CL,PurchaseCount
+	MOV CL,continuePurchaseCount
 	CalculateSub: 
 		MOV BX,CalculateSubtotalIndex
 		MOV AH,0
