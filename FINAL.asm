@@ -4,38 +4,38 @@
 .DATA
     newline            DB 13,10,"$"
 	
-	;---Program Title
-	progTitle          DB       "//***********************************************************\\"
-	                   DB 13,10,"[   __ __               _                     __      __      ]"
-	                   DB 13,10,"[  /_ (__)  /      _   / )  _     _ __/'     (  _/   / _)/ _/ ]"
-	                   DB 13,10,"[ (__)__/  (__()\/(-  (__()/ /)()/ (///()/) __)(//) /(_)/)(/  ]"
-	                   DB 13,10,"[                           /                                 ]"
-                           DB 13,10,"\\***********************************************************//$"
+    ;---Program Title
+    progTitle          DB       "//***********************************************************\\"
+                       DB 13,10,"[   __ __               _                     __      __      ]"
+                       DB 13,10,"[  /_ (__)  /      _   / )  _     _ __/'     (  _/   / _)/ _/ ]"
+                       DB 13,10,"[ (__)__/  (__()\/(-  (__()/ /)()/ (///()/) __)(//) /(_)/)(/  ]"
+                       DB 13,10,"[                           /                                 ]"
+                       DB 13,10,"\\***********************************************************//$"
 
 	
-	;---Login
-	loginTitle         DB "LOGIN"
-	                   DB 13,10,"---------------------------------------$"
-	promptId           DB "   Enter ID       > $"
-	promptPassword 	   DB "   Enter Password > $"
-	invalidLoginMsg    DB "   Invalid ID or Password!!$"
-	loginSuccessMsg    DB 13,10,"<------------ Welcome!! -------------->$"
-	validId            DB "user123"
-	validPassword      DB "psw1234"
-	idEntered          DB 7 DUP(?)
-	passwordEntered    DB 7 DUP(?)
+    ;---Login
+    loginTitle         DB       "                 LOGIN"
+                       DB 13,10,"---------------------------------------$"
+    promptId           DB "   Enter ID       > $"
+    promptPassword 	   DB "   Enter Password > $"
+    invalidLoginMsg    DB "   Invalid ID or Password!!$"
+    loginSuccessMsg    DB 13,10,"<------------ Welcome!! -------------->$"
+    validId            DB "user123"
+    validPassword      DB "psw1234"
+    idEntered          DB 7 DUP(?)
+    passwordEntered    DB 7 DUP(?)
 	
-	;---Menu
-	menuList           DB 13,10,"              MAIN MENU"
-	                   DB 13,10,"======================================="
-	                   DB 13,10," |  [1] Display Product Information  |"
-	                   DB 13,10," |  [2] Purchase                     |"
-	                   DB 13,10," |  [3] Sales Summary                |"
-	                   DB 13,10," |  [4] Product Maintenance          |"
-	                   DB 13,10," |  [5] Exit Program                 |"
-	                   DB 13,10,"=======================================$"
-	promptMenuOpt      DB "Enter your option (1-5) > $"
-	invalidMenuOptMsg  DB "Invalid Option!!$"
+    ;---Menu
+    menuList           DB 13,10,"              MAIN MENU"
+                       DB 13,10,"======================================="
+                       DB 13,10," |  [1] Display Product Information  |"
+                       DB 13,10," |  [2] Purchase                     |"
+                       DB 13,10," |  [3] Sales Summary                |"
+                       DB 13,10," |  [4] Product Maintenance          |"
+                       DB 13,10," |  [5] Exit Program                 |"
+                       DB 13,10,"=======================================$"
+    promptMenuOpt      DB "Enter your option (1-5) > $"
+    invalidMenuOptMsg  DB "Invalid Option!!$"
 
     ; Product info
     totalProducts DB 12
@@ -63,10 +63,10 @@
     currProdDescIndex DB 0
 
     ; Option 2 (Purchase) Variables
-	;---Storing data
+    ;---Storing data
     PurchasingItem      DB 20 DUP ("?")
     PurchaseQuantity    DB 20 DUP ("?")
-	PurchasePrice       DW 0
+    PurchasePrice       DW 0
     Subtotal            DW 0
     SST_QUOTIENT        DW 0
     SST_REMAINDER       DW 0
@@ -74,26 +74,26 @@
     SERVICE_REMAINDER   DW 0
     TOTAL_QUOTIENT      DW 0
     TOTAL_REMAINDER     DW 0
-	ADJUSTED_QUOTIENT   DW 0
-	ADJUSTED_REMAINDER  DW 0
-	CASH_QUOTIENT       DW ?
-	CASH_REMAINDER      DW ?
-	BALANCE_QUOTIENT    DW 0
-	BALANCE_REMAINDER   DW 0
-	
-	;---Order
+    ADJUSTED_QUOTIENT   DW 0
+    ADJUSTED_REMAINDER  DW 0
+    CASH_QUOTIENT       DW ?
+    CASH_REMAINDER      DW ?
+    BALANCE_QUOTIENT    DW 0
+    BALANCE_REMAINDER   DW 0
+    
+    ;---Order
     ;---constant value
     HUNDRED           DW 100
     TWO               DB 2
-    ServicePercentage DW 10
+    ServicePercentage DW 12
     SSTPercentage     DW 5
     DeliveryFee       DW 20
 	
-	;---Messages
+    ;---Messages
     opt2Title DB "( Option 2 ) Purchase", 13, 10, 10, "$" 
     opt2MenuLeft DB " left$"
     opt2MenuPrice DB " - RM$"
-	PurchaseIndexMsg        DB "Enter your choice (01-12): $"
+    PurchaseIndexMsg        DB "Enter your choice (01-12): $"
     PurchaseQuantityMsg     DB "Enter purchase quantity (01-99): $"
     InvalidPurchaseIndexMsg DB "Invalid Choice! Pls Re-enter.$"
     InsufficientStockMsg    DB "Stock Insufficient! Pls Re-enter.$"
@@ -102,40 +102,42 @@
     DeliveryMsg             DB "Do you want to have delivary service (RM 20) ? (Y to choose) $"
     DeliveryChoose          DB ?
 	
-	purchaseBill        DB "                 Bill$"
-	purchaseBillLine    DB "---------------------------------------$"
-    purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
+    purchaseBill        DB       "---------------------------------------"
+                        DB 13,10,"             PURCHASE BILL$"
+    purchaseBillLine    DB       "---------------------------------------$"
+    purchaseBillItemMsg DB "Item           Quantity    Subtotal$"
     deliveryTotalMsg    DB "Delivery                   RM   20.00$"
-	subtotalMsg         DB "                           RM$"
-	sstMsg              DB "SST (5%)                :  RM$"
-	serviceChargeMsg    DB "Service Charge (10%)    :  RM$"
-	totalAmountMsg      DB "Total Amount            :  RM$"
-	roundingMsg         DB "Rounding Adjustment     : $"
-	adjustedAmountMsg   DB "Total Amount (Adjusted) :  RM$"
-	inputCashMsg        DB "Input Cash (ie. 50.00)  :  RM $"
-	notEnoughMsg        DB "Not Enough Cash!!$"
-	invalidCashMsg      DB "Invalid Cash!! Input cash should include decimal points (ie.50.00).$"
-	balanceMsg          DB "Balance                 :  RM$"
-	thxOrderMsg         DB "Thank you for your order!!$"
-	
-	;--indexing
+    subtotalLine        DB "                           ------------$"
+    subtotalMsg         DB "                           RM$"
+    sstMsg              DB "SST (5%)                :  RM$"
+    serviceChargeMsg    DB "Service Charge (12%)    :  RM$"
+    totalAmountMsg      DB "Total Amount            :  RM$"
+    roundingMsg         DB "Rounding Adjustment     : $"
+    adjustedAmountMsg   DB "Total Amount (Adjusted) :  RM$"
+    inputCashMsg        DB "Input Cash (ie. 50.00)  :  RM $"
+    notEnoughMsg        DB "Not Enough Cash!!$"
+    invalidCashMsg      DB "Invalid Cash!! Input cash should include decimal points (ie.50.00).$"
+    balanceMsg          DB "Balance                 :  RM$"
+    thxOrderMsg         DB "      Thank you for your order!!$"
+    
+    ;--indexing
     continuePurchaseCount  DB 0
     CalculateSubtotalIndex DW 0
     numOfPurchased         DB 0
 	
-	;---Output & Input Amounts Used
-	tenB                DB 10
-	tenW                DW 10
-	inputStack          DB 10 DUP(" ")
-	
-	;---For Calculating Rounding Adjustment
-	five                DB 5
-	lastDigit           DB ?
-	roundingAdjustment  DB ?
-	
-	;---Formatting Rounding Adjustment
-	positiveRounding    DB "+RM    0.0$"
-	negativeRounding    DB "-RM    0.0$"
+    ;---Output & Input Amounts Used
+    tenB                DB 10
+    tenW                DW 10
+    inputStack          DB 10 DUP(" ")
+    
+    ;---For Calculating Rounding Adjustment
+    five                DB 5
+    lastDigit           DB ?
+    roundingAdjustment  DB ?
+    
+    ;---Formatting Rounding Adjustment
+    positiveRounding    DB "+RM    0.0$"
+    negativeRounding    DB "-RM    0.0$"
 	
 
     ; Option 3 (Display Sales Summary) Variables
@@ -151,11 +153,11 @@
     opt3GrandTotal DW 0, 0   ; First = Upper 16-bits, Second = Lower 16-bits 
     opt3HundredP DB "100.000$"
 
-	; Option 4 (Product Maintenance) Variables
-	opt4Title DB "( Option 4 ) Product Maintenance", 13, 10, 10, "$" 
+    ; Option 4 (Product Maintenance) Variables
+    opt4Title DB "( Option 4 ) Product Maintenance", 13, 10, 10, "$" 
 
     ; Option 5 Ending
-	opt5Title          DB 13,10,"<----- Bye..See You Next Time... ----->$"
+    opt5Title          DB 13,10,"<----- Bye..See You Next Time... ----->$"
     numOfPurchasedMsg DB "Total number of purchased: $"
 
     ; Variables for Display32BitNum Function
@@ -178,114 +180,114 @@ MAIN PROC
     MOV DS, AX
 
     ;------Program Title
-	MOV AH,09H
-	LEA DX,progTitle
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	
-	;------Login
-	MOV AH,09H
-	LEA DX,loginTitle
-	INT 21H
-		
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-		
-	Login:
-		;---Get id
-		MOV AH,09H
-		LEA DX,promptId
-		INT 21H
-	
-		MOV SI,OFFSET idEntered
-		MOV CX,7
-		inputID:
-			MOV AH,01H
-			INT 21H
-			MOV [SI],AL
-			INC SI
-		LOOP inputID
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		;---Get Password
-		MOV AH,09H
-		LEA DX,promptPassword
-		INT 21H
-	
-		MOV SI,OFFSET passwordEntered
-		MOV CX,7
-		inputPassword:
-			MOV AH,07H
-			INT 21H
-			MOV [SI],AL
-			INC SI
-		LOOP inputPassword
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		;---Validation
-		MOV CX,7
-		MOV SI,OFFSET idEntered
-		MOV DI,OFFSET validId
-		validateID:
-			MOV BL,[SI]
-			CMP BL,[DI]
-			JNE InvalidLogin
-			INC SI
-			INC DI
-		LOOP validateID
-		
-		MOV CX,7		
-		MOV SI,OFFSET passwordEntered
-		MOV DI,OFFSET validPassword
-		validatePassword:
-			MOV BL,[SI]
-			CMP BL,[DI]
-			JNE InvalidLogin
-			INC SI
-			INC DI
-		LOOP validatePassword
-		JMP LoginSuccess
-		
-		InvalidLogin:
-			MOV AH,09H
-			LEA DX,invalidLoginMsg
-			INT 21H
-			
-			MOV AH,09H
-			LEA DX,newline
-			INT 21H
-			
-			MOV AH,09H
-			LEA DX,newline
-			INT 21H
-			
-			JMP Login
-			
-		LoginSuccess:
-			MOV AH,09H
-			LEA DX,newline
-			INT 21H
-			
-			MOV AH,09H
-			LEA DX,loginSuccessMsg
-			INT 21H
-		
-			MOV AH,09H
-			LEA DX,newline
-			INT 21H
-			
-		CALL MENU
+    MOV AH,09H
+    LEA DX,progTitle
+    INT 21H
+    
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+    
+    
+    ;------Login
+    MOV AH,09H
+    LEA DX,loginTitle
+    INT 21H
+    	
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+    	
+    Login:
+    	;---Get id
+    	MOV AH,09H
+    	LEA DX,promptId
+    	INT 21H
+    
+    	MOV SI,OFFSET idEntered
+    	MOV CX,7
+    	inputID:
+    		MOV AH,01H
+    		INT 21H
+    		MOV [SI],AL
+    		INC SI
+    	LOOP inputID
+    	
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    	
+    	;---Get Password
+    	MOV AH,09H
+    	LEA DX,promptPassword
+    	INT 21H
+    
+    	MOV SI,OFFSET passwordEntered
+    	MOV CX,7
+    	inputPassword:
+    		MOV AH,07H
+    		INT 21H
+    		MOV [SI],AL
+    		INC SI
+    	LOOP inputPassword
+    	
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    	
+    	;---Validation
+    	MOV CX,7
+    	MOV SI,OFFSET idEntered
+    	MOV DI,OFFSET validId
+    	validateID:
+    		MOV BL,[SI]
+    		CMP BL,[DI]
+    		JNE InvalidLogin
+    		INC SI
+    		INC DI
+    	LOOP validateID
+    	
+    	MOV CX,7		
+    	MOV SI,OFFSET passwordEntered
+    	MOV DI,OFFSET validPassword
+    	validatePassword:
+    		MOV BL,[SI]
+    		CMP BL,[DI]
+    		JNE InvalidLogin
+    		INC SI
+    		INC DI
+    	LOOP validatePassword
+    	JMP LoginSuccess
+    	
+    	InvalidLogin:
+    		MOV AH,09H
+    		LEA DX,invalidLoginMsg
+    		INT 21H
+    		
+    		MOV AH,09H
+    		LEA DX,newline
+    		INT 21H
+    		
+    		MOV AH,09H
+    		LEA DX,newline
+    		INT 21H
+    		
+    		JMP Login
+    		
+    	LoginSuccess:
+    		MOV AH,09H
+    		LEA DX,newline
+    		INT 21H
+    		
+    		MOV AH,09H
+    		LEA DX,loginSuccessMsg
+    		INT 21H
+    	
+    		MOV AH,09H
+    		LEA DX,newline
+    		INT 21H
+    		
+    	CALL MENU
 
     MOV AX, 4C00H
     INT 21H
@@ -293,75 +295,75 @@ MAIN ENDP
 
 ;---Menu
 MENU PROC	
-	DisplayMenu:
-		MOV AH,09H
-		LEA DX,menuList
-		INT 21H
-	
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-	InputOpt:
-		MOV AH,09H
-		LEA DX,promptMenuOpt
-		INT 21H
-		
-		MOV AH,01H
-		INT 21H
-		SUB AL,30H
-		
-		CMP AL,1
-		JE Option1
-		CMP AL,2
-		JE Option2
-		CMP AL,3
-		JE Option3
-		CMP AL,4
-		JE Option4
-		CMP AL,5
-		JNE InvalidOption
-		JMP Option5
+    DisplayMenu:
+    	MOV AH,09H
+    	LEA DX,menuList
+    	INT 21H
+    
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    InputOpt:
+    	MOV AH,09H
+    	LEA DX,promptMenuOpt
+    	INT 21H
+    	
+    	MOV AH,01H
+    	INT 21H
+    	SUB AL,30H
+    	
+    	CMP AL,1
+    	JE Option1
+    	CMP AL,2
+    	JE Option2
+    	CMP AL,3
+    	JE Option3
+    	CMP AL,4
+    	JE Option4
+    	CMP AL,5
+    	JNE InvalidOption
+    	JMP Option5
 
-	InvalidOption:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,invalidMenuOptMsg
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-		
-		JMP InputOpt
+    InvalidOption:
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    	
+    	MOV AH,09H
+    	LEA DX,invalidMenuOptMsg
+    	INT 21H
+    	
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    	
+    	JMP InputOpt
 
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	Option1: 
-		CALL OPT1
-		JMP DisplayMenu
-	
-	Option2: 
-		CALL OPT2
-		JMP DisplayMenu
-		
-	Option3: 
-		CALL OPT3
-		JMP DisplayMenu
-		
-	Option4: 
-		CALL OPT4
-		JMP DisplayMenu
-		
-	Option5: 
-		CALL OPT5
-	
-	RET
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+    
+    Option1: 
+    	CALL OPT1
+    	JMP DisplayMenu
+    
+    Option2: 
+    	CALL OPT2
+    	JMP DisplayMenu
+    	
+    Option3: 
+    	CALL OPT3
+    	JMP DisplayMenu
+    	
+    Option4: 
+    	CALL OPT4
+    	JMP DisplayMenu
+    	
+    Option5: 
+        CALL OPT5
+    
+    RET
 MENU ENDP
 
 ; Option 1 - Display Product Information
@@ -520,11 +522,11 @@ OPT1 PROC
 	RET
 OPT1 ENDP
 
-; Option 3 - Purchase
+; Option 2 - Purchase
 OPT2 PROC
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
     LEA DX, opt2Title
     INT 21H
 
@@ -563,7 +565,7 @@ OPT2 PROC
         INC SI
     LOOP clearInputStack
 
-	 DISPLAY_PRODUCT_LIST:
+	DISPLAY_PRODUCT_LIST:
         MOV CH,0
         MOV CL,prodNameLength
 
@@ -878,7 +880,7 @@ OPT2 PROC
 		INT 21H
 	    MOV CH,0
 	    MOV CL,continuePurchaseCount
-        MOV CalculateSubtotalIndex, 0
+            MOV CalculateSubtotalIndex, 0
 	    CalculateSub: 
 		    MOV BX,CalculateSubtotalIndex
 		    MOV AH,0
@@ -927,25 +929,25 @@ OPT2 PROC
 
         
 	Display1:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
+	    MOV AH,09H
+	    LEA DX,newline
+	    INT 21H
 		
-		MOV AH,09H
-		LEA DX,purchaseBill
-		INT 21H
+	    MOV AH,09H
+	    LEA DX,purchaseBill
+	    INT 21H
 		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
+	    MOV AH,09H
+	    LEA DX,newline
+	    INT 21H
 		
-		MOV AH,09H
-		LEA DX,purchaseBillLine
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
+	    MOV AH,09H
+	    LEA DX,purchaseBillLine
+	    INT 21H
+	    
+	    MOV AH,09H
+	    LEA DX,newline
+	    INT 21H
 
     ;--Display item bought
         MOV AH,09H
@@ -1014,20 +1016,20 @@ OPT2 PROC
         
         MOV AX,prodPrices[BX]
         MUL purchaseQuantity[SI]
-		MOV PurchasePrice,AX
+	MOV PurchasePrice,AX
         CALL AmountFormatting
-		MOV AX,PurchasePrice
-		CALL DisplayNum
+	MOV AX,PurchasePrice
+	CALL DisplayNum
 		
-		MOV AH,02H
+	MOV AH,02H
         MOV DL,"."
         INT 21H
 		
-		MOV AH,02H
+	MOV AH,02H
         MOV DL,"0"
         INT 21H
 		
-		MOV AH,02H
+	MOV AH,02H
         MOV DL,"0"
         INT 21H
         
@@ -1038,7 +1040,7 @@ OPT2 PROC
         INC SI
         MOV DL,continuePurchaseCount
         CMP PurchasingItem[SI],DL
-        JG VALIDATE_DELIVERY
+        JGE VALIDATE_DELIVERY
         JMP DISPLAY_PURCHASED_ITEM
 		
     VALIDATE_DELIVERY:
@@ -1046,13 +1048,9 @@ OPT2 PROC
         JE DISPLAY_DELIVERY_MSG
         CMP DeliveryChoose,"Y"
         JE DISPLAY_DELIVERY_MSG
-        JMP CALCULATE_ROUNDING_ADJUSTMENT
+        JMP DISPLAY_SUBTOTAL
 
     DISPLAY_DELIVERY_MSG:
-        MOV AH,09H
-        LEA DX,newline
-        INT 21H
-
         MOV AH,09H
         LEA DX,deliveryTotalMsg
         INT 21H
@@ -1061,74 +1059,84 @@ OPT2 PROC
         LEA DX,newline
         INT 21H
 
+	DISPLAY_SUBTOTAL:
+	    MOV AH, 09H
+	    LEA DX, subtotalLine
+	    INT 21H
+	
+	    MOV AH,09H
+	    LEA DX,newline
+	    INT 21H
+	
+	    MOV AH, 09H
+	    LEA DX, subtotalMsg
+	    INT 21H
+	
+	    MOV AX, Subtotal
+	    CALL AmountFormatting
+	    MOV AX, Subtotal
+	    CALL DisplayNum
+	
+	    MOV AH,02H
+	    MOV DL, '.'
+	    INT 21H
+	
+	    MOV DL, '0'
+	    INT 21H
+	    INT 21H
+
+	    MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+	    
+	    MOV AH,09H
+	    LEA DX,purchaseBillLine
+	    INT 21H
+	
+	    MOV AH,09H
+	    LEA DX,newline
+	    INT 21H
+
     ;------Calculate Rounding Adjustment
-    CALCULATE_ROUNDING_ADJUSTMENT:
+    MOV DX,0
+    MOV AX,TOTAL_REMAINDER
+    MOV BH,0
+    MOV BL,five
+    DIV BX
+    MOV lastDigit,DL
+    
+    CMP lastDigit,3
+    JB LessThanThree
+    
+    ;ie RM0.53 --> RM0.55
+    MOV AL,five
+    SUB AL,lastDigit
+    MOV roundingAdjustment,AL
+    JMP CalculateAdjustedAmount
+    
+    LessThanThree:
+    	;ie RM0.52 --> RM0.50
+    	MOV AL,lastDigit   ;Convert positive value to negative
+    	SUB AL,lastDigit
+    	SUB AL,lastDigit
+    	MOV roundingAdjustment,AL
+    
+    CalculateAdjustedAmount:
+    	MOV AX,TOTAL_REMAINDER
+    	MOV DX,0
+    	ADD AL,roundingAdjustment
+    	DIV HUNDRED
+    	ADD AX,TOTAL_QUOTIENT
+    	MOV ADJUSTED_QUOTIENT,AX
+    	MOV ADJUSTED_REMAINDER,DX    
+    ;---Display SST
     MOV AH,09H
-	LEA DX,purchaseBillLine
-	INT 21H
-    MOV AH,09H
-    LEA DX,newline
+    LEA DX,sstMsg
     INT 21H
-
-	MOV DX,0
-	MOV AX,TOTAL_REMAINDER
-	MOV BH,0
-	MOV BL,five
-	DIV BX
-	MOV lastDigit,DL
-	
-	CMP lastDigit,3
-	JB LessThanThree
-	
-	;ie RM0.53 --> RM0.55
-	MOV AL,five
-	SUB AL,lastDigit
-	MOV roundingAdjustment,AL
-	JMP CalculateAdjustedAmount
-	
-	LessThanThree:
-		;ie RM0.52 --> RM0.50
-		MOV AL,lastDigit   ;Convert positive value to negative
-		SUB AL,lastDigit
-		SUB AL,lastDigit
-		MOV roundingAdjustment,AL
-	
-	CalculateAdjustedAmount:
-		MOV AX,TOTAL_REMAINDER
-		MOV DX,0
-		ADD AL,roundingAdjustment
-		DIV HUNDRED
-		ADD AX,TOTAL_QUOTIENT
-		MOV ADJUSTED_QUOTIENT,AX
-		MOV ADJUSTED_REMAINDER,DX
-	
-	; Display Subtotal
-    MOV AH, 09H
-    LEA DX, subtotalMsg
-    INT 21H
-    MOV AX, Subtotal
-    CALL AmountFormatting
-    MOV AX, Subtotal
-    CALL DisplayNum
-	MOV AH,02H
-	MOV DL, '.'
-	INT 21H
-    MOV DL, '0'
-    INT 21H
-    INT 21H
-
-    MOV AH, 09H
-    LEA DX, newline
-    INT 21H
-
-	;---Display SST
-	MOV AH,09H
-	LEA DX,sstMsg
-	INT 21H
 	
     MOV AX, SST_QUOTIENT
-	CALL AmountFormatting
-	MOV AX, SST_QUOTIENT
+    CALL AmountFormatting
+    MOV AX, SST_QUOTIENT
     CALL DisplayNum
 	MOV AH,02H
 	MOV DL,"."
@@ -1144,262 +1152,266 @@ OPT2 PROC
 	INT 21H
 		
 	DisplaySstDecimal:
-		MOV AX, SST_REMAINDER
-		CALL DisplayNum
-		JMP DoneDisplaySST
+	    MOV AX, SST_REMAINDER
+	    CALL DisplayNum
+	    JMP DoneDisplaySST
 	
 	ZeroSstDecimal:
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
+	    MOV AH,02H
+	    MOV DL,"0"
+	    INT 21H
+	    MOV AH,02H
+	    MOV DL,"0"
+	    INT 21H
 	
 	DoneDisplaySST:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
+	    MOV AH,02H
+	    MOV DL,"0"
+	    INT 21H
+	    
+	    MOV AH,09H
+	    LEA DX,newline
+	    INT 21H
 	
 	
-	;---Display Service Charge
-	MOV AH,09H
-	LEA DX,serviceChargeMsg
-	INT 21H
+    ;---Display Service Charge
+    MOV AH,09H
+    LEA DX,serviceChargeMsg
+    INT 21H
 	
     MOV AX, SERVICE_QUOTIENT
-	CALL AmountFormatting
-	MOV AX, SERVICE_QUOTIENT
+    CALL AmountFormatting
+    MOV AX, SERVICE_QUOTIENT
     CALL DisplayNum
-	MOV AH,02H
-	MOV DL,"."
-	INT 21H
-	
-	CMP SERVICE_REMAINDER,0
-	JE ZeroServiceChargeDecimal
-	CMP SERVICE_REMAINDER,10
-	JAE DisplayServiceChargeDecimal
-	
-	MOV AH,02H
-	MOV DL,"0"
-	INT 21H
-		
-	DisplayServiceChargeDecimal:
-		MOV AX, SERVICE_REMAINDER
-		CALL DisplayNum
-		JMP DoneDisplayServiceCharge
-	
-	ZeroServiceChargeDecimal:
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-	
-	DoneDisplayServiceCharge:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-	
-	;---Display Total Amount
-	MOV AH,09H
-	LEA DX,totalAmountMsg
-	INT 21H
-	
-	MOV AX, TOTAL_QUOTIENT
-	CALL AmountFormatting
-	MOV AX, TOTAL_QUOTIENT
+    MOV AH,02H
+    MOV DL,"."
+    INT 21H
+    
+    CMP SERVICE_REMAINDER,0
+    JE ZeroServiceChargeDecimal
+    CMP SERVICE_REMAINDER,10
+    JAE DisplayServiceChargeDecimal
+    
+    MOV AH,02H
+    MOV DL,"0"
+    INT 21H
+    	
+    DisplayServiceChargeDecimal:
+    	MOV AX, SERVICE_REMAINDER
+    	CALL DisplayNum
+    	JMP DoneDisplayServiceCharge
+    
+    ZeroServiceChargeDecimal:
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    
+    DoneDisplayServiceCharge:
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    
+    ;---Display Total Amount
+    MOV AH,09H
+    LEA DX,totalAmountMsg
+    INT 21H
+    
+    MOV AX, TOTAL_QUOTIENT
+    CALL AmountFormatting
+    MOV AX, TOTAL_QUOTIENT
     CALL DisplayNum
-	MOV AH,02H
-	MOV DL,"."
-	INT 21H
-	
-	CMP TOTAL_REMAINDER,0
-	JE ZeroTotalAmountDecimal
-	CMP TOTAL_REMAINDER,10
-	JAE DisplayTotalAmountDecimal
-	
-	MOV AH,02H
-	MOV DL,"0"
-	INT 21H
-		
-	DisplayTotalAmountDecimal:
-		MOV AX, TOTAL_REMAINDER
-		CALL DisplayNum
-		JMP DoneDisplayTotalAmount
-	
-	ZeroTotalAmountDecimal:
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-	
-	DoneDisplayTotalAmount:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-	
-	;------Display Rounding Adjustment
-	MOV AH,09H
-	LEA DX,roundingMsg
-	INT 21H
-	
-	CMP roundingAdjustment,0
-	JGE IsPositive;
-	
-	MOV AH,09H
-	LEA DX,negativeRounding
-	INT 21H
-	
-	MOV AH,02H
-	MOV DL,roundingAdjustment
-	NEG DL  ;Convert negative value to positive
-	ADD DL,30H
-	INT 21H
-	
-	JMP EndDisplayRounding
-	
-	IsPositive:
-		MOV AH,09H
-		LEA DX,positiveRounding
-		INT 21H
-		
-		MOV AH,02H
-		MOV DL,roundingAdjustment
-		ADD DL,30H
-		INT 21H
-	
-	EndDisplayRounding:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-	
-	;---Display Adjusted Total Amount
-	MOV AH,09H
-	LEA DX,adjustedAmountMsg
-	INT 21H
-	
-	MOV AX,ADJUSTED_QUOTIENT
-	CALL AmountFormatting
-	MOV AX,ADJUSTED_QUOTIENT
-	CALL DisplayNum
-	MOV AH,02H
-	MOV DL,"."
-	INT 21H
-	
-	CMP ADJUSTED_REMAINDER,0
-	JE ZeroAdjustedAmountDecimal
-	CMP ADJUSTED_REMAINDER,10
-	JAE DisplayAdjustedAmountDecimal
-	
-	MOV AH,02H
-	MOV DL,"0"
-	INT 21H
-		
-	DisplayAdjustedAmountDecimal:
-		MOV AX, ADJUSTED_REMAINDER
-		CALL DisplayNum
-		JMP DoneDisplayAdjustedAmount
-	
-	ZeroAdjustedAmountDecimal:
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-	
-	DoneDisplayAdjustedAmount:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-	
-	;---Input Cash
-	InputCash:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-		MOV AH, 09H
-		LEA DX,inputCashMsg
-		INT 21H
-	
-		MOV AH,0AH
-		LEA DX,inputStack
-		INT 21H
-	
-	;Validate input cash that contain .00 or not
-	MOV AH,0
-	MOV AL,inputStack[1]   ;Get actual number
-	;Place that store "." 
-	;= Arr Size - 3(3rd last arr) + 2(first 2 arr: max size & actual size)
-	;= Arr Size - 1
-	SUB AL,1               
-	MOV SI,AX
-	CMP inputStack[SI],"."
-	JE ValidCash
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	MOV AH, 09H
-	LEA DX,invalidCashMsg
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	JMP InputCash
-	
-	ValidCash:
-		MOV CASH_QUOTIENT,0
-		MOV CASH_REMAINDER,0
-	
-	MOV DI,2
-	MOV CH,0
-	MOV CL,inputStack[1]
-	ConvertCashInteger:
-		CMP inputStack[DI],"."
-		JE NextConverting
-		
-		SUB inputStack[DI],30H
-		MOV BH,0
-		MOV BL,inputStack[DI]
-		MOV AX,CASH_QUOTIENT
-		MUL tenW
-		ADD AX,BX
-		MOV CASH_QUOTIENT,AX
-		INC DI
-		LOOP ConvertCashInteger
-	
-	NextConverting:
-	INC DI
-	MOV CX,2
-	ConvertCashDecimal:
-		SUB inputStack[DI],30H
-		MOV BH,0
-		MOV BL,inputStack[DI]
-		MOV AX,CASH_REMAINDER
-		MUL tenW
-		ADD AX,BX
-		MOV CASH_REMAINDER,AX
-		INC DI
-		MOV AH,0
-		MOV AL,inputStack[1]
-		LOOP ConvertCashDecimal
-	
-	MOV AX,CASH_QUOTIENT
-	CMP AX,ADJUSTED_QUOTIENT
-	JA DoneInputCash
+    MOV AH,02H
+    MOV DL,"."
+    INT 21H
+    
+    CMP TOTAL_REMAINDER,0
+    JE ZeroTotalAmountDecimal
+    CMP TOTAL_REMAINDER,10
+    JAE DisplayTotalAmountDecimal
+    
+    MOV AH,02H
+    MOV DL,"0"
+    INT 21H
+    	
+    DisplayTotalAmountDecimal:
+    	MOV AX, TOTAL_REMAINDER
+    	CALL DisplayNum
+    	JMP DoneDisplayTotalAmount
+    
+    ZeroTotalAmountDecimal:
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    
+    DoneDisplayTotalAmount:
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    
+    ;------Display Rounding Adjustment
+    MOV AH,09H
+    LEA DX,roundingMsg
+    INT 21H
+    
+    CMP roundingAdjustment,0
+    JGE IsPositive;
+    
+    MOV AH,09H
+    LEA DX,negativeRounding
+    INT 21H
+    
+    MOV AH,02H
+    MOV DL,roundingAdjustment
+    NEG DL  ;Convert negative value to positive
+    ADD DL,30H
+    INT 21H
+    
+    JMP EndDisplayRounding
+    
+    IsPositive:
+    	MOV AH,09H
+    	LEA DX,positiveRounding
+    	INT 21H
+    	
+    	MOV AH,02H
+    	MOV DL,roundingAdjustment
+    	ADD DL,30H
+    	INT 21H
+    
+    EndDisplayRounding:
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    
+    ;---Display Adjusted Total Amount
+    MOV AH,09H
+    LEA DX,adjustedAmountMsg
+    INT 21H
+    
+    MOV AX,ADJUSTED_QUOTIENT
+    CALL AmountFormatting
+    MOV AX,ADJUSTED_QUOTIENT
+    CALL DisplayNum
+    MOV AH,02H
+    MOV DL,"."
+    INT 21H
+    
+    CMP ADJUSTED_REMAINDER,0
+    JE ZeroAdjustedAmountDecimal
+    CMP ADJUSTED_REMAINDER,10
+    JAE DisplayAdjustedAmountDecimal
+    
+    MOV AH,02H
+    MOV DL,"0"
+    INT 21H
+    	
+    DisplayAdjustedAmountDecimal:
+    	MOV AX, ADJUSTED_REMAINDER
+    	CALL DisplayNum
+    	JMP DoneDisplayAdjustedAmount
+    
+    ZeroAdjustedAmountDecimal:
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    
+    DoneDisplayAdjustedAmount:
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    
+    ;---Input Cash
+    InputCash:
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    	MOV AH, 09H
+    	LEA DX,inputCashMsg
+    	INT 21H
+    
+    	MOV AH,0AH
+    	LEA DX,inputStack
+    	INT 21H
+    
+    ;Validate input cash that contain .00 or not
+    MOV AH,0
+    MOV AL,inputStack[1]   ;Get actual number
+    ;Place that store "." 
+    ;= Arr Size - 3(3rd last arr) + 2(first 2 arr: max size & actual size)
+    ;= Arr Size - 1
+    SUB AL,1               
+    MOV SI,AX
+    CMP inputStack[SI],"."
+    JE ValidCash
+    
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+    
+    MOV AH, 09H
+    LEA DX,invalidCashMsg
+    INT 21H
+    
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+    
+    JMP InputCash
+    
+    ValidCash:
+    	MOV CASH_QUOTIENT,0
+    	MOV CASH_REMAINDER,0
+    
+    MOV DI,2
+    MOV CH,0
+    MOV CL,inputStack[1]
+    ConvertCashInteger:
+    	CMP inputStack[DI],"."
+    	JE NextConverting
+    	
+    	SUB inputStack[DI],30H
+    	MOV BH,0
+    	MOV BL,inputStack[DI]
+    	MOV AX,CASH_QUOTIENT
+    	MUL tenW
+    	ADD AX,BX
+    	MOV CASH_QUOTIENT,AX
+    	INC DI
+    	LOOP ConvertCashInteger
+    
+    NextConverting:
+    INC DI
+    MOV CX,2
+    ConvertCashDecimal:
+    	SUB inputStack[DI],30H
+    	MOV BH,0
+    	MOV BL,inputStack[DI]
+    	MOV AX,CASH_REMAINDER
+    	MUL tenW
+    	ADD AX,BX
+    	MOV CASH_REMAINDER,AX
+    	INC DI
+    	MOV AH,0
+    	MOV AL,inputStack[1]
+    	LOOP ConvertCashDecimal
+    
+    MOV AX,CASH_QUOTIENT
+    CMP AX,ADJUSTED_QUOTIENT
+    JA DoneInputCash
     JB NotEnoughCash
 
     MOV AX, CASH_REMAINDER
@@ -1407,103 +1419,103 @@ OPT2 PROC
     JAE DoneInputCash
 
     NotEnoughCash:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-		MOV AH,09H
-		LEA DX,notEnoughMsg
-		INT 21H
-		
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-	JMP InputCash
-	
-	DoneInputCash:
-	;---Calculate Balance
-	MOV AX,CASH_REMAINDER
-	CMP AX,ADJUSTED_REMAINDER
-	JA Minus
-	JE NoBalance
-	
-	ADD AX,HUNDRED
-	SUB CASH_QUOTIENT,1
-	
-	Minus:
-		SUB AX,ADJUSTED_REMAINDER
-		MOV BALANCE_REMAINDER,AX
-	
-	MOV BX,CASH_QUOTIENT
-	SUB BX,ADJUSTED_QUOTIENT
-	MOV BALANCE_QUOTIENT,BX
-	
-	NoBalance:
-	;;Skip calculating balance
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    	MOV AH,09H
+    	LEA DX,notEnoughMsg
+    	INT 21H
+    	
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    JMP InputCash
+    
+    DoneInputCash:
+    ;---Calculate Balance
+    MOV AX,CASH_REMAINDER
+    CMP AX,ADJUSTED_REMAINDER
+    JA Minus
+    JE NoBalance
+    
+    ADD AX,HUNDRED
+    SUB CASH_QUOTIENT,1
+    
+    Minus:
+    	SUB AX,ADJUSTED_REMAINDER
+    	MOV BALANCE_REMAINDER,AX
+    
+    MOV BX,CASH_QUOTIENT
+    SUB BX,ADJUSTED_QUOTIENT
+    MOV BALANCE_QUOTIENT,BX
+    
+    NoBalance:
+    ;;Skip calculating balance
 
-	
-	;---Display Balance
-	MOV AH,09H
-	LEA DX,balanceMsg
-	INT 21H
-	
-	MOV AX,BALANCE_QUOTIENT
-	CALL AmountFormatting
-	MOV AX,BALANCE_QUOTIENT
-	CALL DisplayNum
-	MOV AH,02H
-	MOV DL,"."
-	INT 21H
-	
-	CMP BALANCE_REMAINDER,0
-	JE ZeroBalanceDecimal
-	CMP BALANCE_REMAINDER,10
-	JAE DisplayBalanceDecimal
-	
-	MOV AH,02H
-	MOV DL,"0"
-	INT 21H
-		
-	DisplayBalanceDecimal:
-		MOV AX, BALANCE_REMAINDER
-		CALL DisplayNum
-		JMP DoneDisplayBalance
-	
-	ZeroBalanceDecimal:
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-		MOV AH,02H
-		MOV DL,"0"
-		INT 21H
-	
-	DoneDisplayBalance:
-		MOV AH,09H
-		LEA DX,newline
-		INT 21H
-	
-	
-	;---Display thx order message
-	MOV AH,09H
-	LEA DX,purchaseBillLine
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,thxOrderMsg
-	INT 21H
-	
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
-	
+    
+    ;---Display Balance
+    MOV AH,09H
+    LEA DX,balanceMsg
+    INT 21H
+    
+    MOV AX,BALANCE_QUOTIENT
+    CALL AmountFormatting
+    MOV AX,BALANCE_QUOTIENT
+    CALL DisplayNum
+    MOV AH,02H
+    MOV DL,"."
+    INT 21H
+    
+    CMP BALANCE_REMAINDER,0
+    JE ZeroBalanceDecimal
+    CMP BALANCE_REMAINDER,10
+    JAE DisplayBalanceDecimal
+    
+    MOV AH,02H
+    MOV DL,"0"
+    INT 21H
+    	
+    DisplayBalanceDecimal:
+    	MOV AX, BALANCE_REMAINDER
+    	CALL DisplayNum
+    	JMP DoneDisplayBalance
+    
+    ZeroBalanceDecimal:
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    	MOV AH,02H
+    	MOV DL,"0"
+    	INT 21H
+    
+    DoneDisplayBalance:
+    	MOV AH,09H
+    	LEA DX,newline
+    	INT 21H
+    
+    
+    ;---Display thx order message
+    MOV AH,09H
+    LEA DX,purchaseBillLine
+    INT 21H
+    
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+    
+    MOV AH,09H
+    LEA DX,thxOrderMsg
+    INT 21H
+    
+    MOV AH,09H
+    LEA DX,newline
+    INT 21H
+    
     ;--record total number of purchase 
     INC numOfPurchased
-	RET
+    RET
 OPT2 ENDP
 
 ; Option 3 - Display Sales Summary
