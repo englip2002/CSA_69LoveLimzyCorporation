@@ -10,7 +10,7 @@
 	                   DB 13,10,"[  /_ (__)  /      _   / )  _     _ __/'     (  _/   / _)/ _/ ]"
 	                   DB 13,10,"[ (__)__/  (__()\/(-  (__()/ /)()/ (///()/) __)(//) /(_)/)(/  ]"
 	                   DB 13,10,"[                           /                                 ]"
-					   DB 13,10,"\\***********************************************************//$"
+                           DB 13,10,"\\***********************************************************//$"
 
 	
 	;---Login
@@ -33,14 +33,9 @@
 	                   DB 13,10," |  [3] Sales Summary                |"
 	                   DB 13,10," |  [4] Product Maintenance          |"
 	                   DB 13,10," |  [5] Exit Program                 |"
-					   DB 13,10,"=======================================$"
+	                   DB 13,10,"=======================================$"
 	promptMenuOpt      DB "Enter your option (1-5) > $"
 	invalidMenuOptMsg  DB "Invalid Option!!$"
-	Op1                DB "Display Product Information$"
-	Op2                DB "Purchase$"
-	Op3                DB "Sales Summary$"
-	Op4                DB "Product Maintenance$"
-	Op5                DB 13,10,"<----- Bye..See You Next Time... ----->$"
 
     ; Product info
     totalProducts DB 12
@@ -108,7 +103,7 @@
     DeliveryChoose          DB ?
 	
 	purchaseBill        DB "                 Bill$"
-	purchaseBillLine    DB "--------------------------------------$"
+	purchaseBillLine    DB "---------------------------------------$"
     purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
     deliveryTotalMsg    DB "Delivery                   RM   20.00$"
 	subtotalMsg         DB "                           RM$"
@@ -119,11 +114,12 @@
 	adjustedAmountMsg   DB "Total Amount (Adjusted) :  RM$"
 	inputCashMsg        DB "Input Cash (ie. 50.00)  :  RM $"
 	notEnoughMsg        DB "Not Enough Cash!!$"
+	invalidCashMsg      DB "Invalid Cash!! Input cash should include decimal points (ie.50.00).$"
 	balanceMsg          DB "Balance                 :  RM$"
 	thxOrderMsg         DB "Thank you for your order!!$"
 	
 	;--indexing
-    continuePurchaseCount       DB 0
+    continuePurchaseCount  DB 0
     CalculateSubtotalIndex DW 0
     numOfPurchased         DB 0
 	
@@ -155,8 +151,12 @@
     opt3GrandTotal DW 0, 0   ; First = Upper 16-bits, Second = Lower 16-bits 
     opt3HundredP DB "100.000$"
 
+	; Option 4 (Product Maintenance) Variables
+	opt4Title DB "( Option 4 ) Product Maintenance", 13, 10, 10, "$" 
+
     ; Option 5 Ending
-    numOfPurchasedMsg DB "The total number of purchased: $"
+	opt5Title          DB 13,10,"<----- Bye..See You Next Time... ----->$"
+    numOfPurchasedMsg DB "Total number of purchased: $"
 
     ; Variables for Display32BitNum Function
     higher16 DW ?
@@ -1080,12 +1080,14 @@ OPT2 PROC
 	CMP lastDigit,3
 	JB LessThanThree
 	
+	;ie RM0.53 --> RM0.55
 	MOV AL,five
 	SUB AL,lastDigit
 	MOV roundingAdjustment,AL
 	JMP CalculateAdjustedAmount
 	
 	LessThanThree:
+		;ie RM0.52 --> RM0.50
 		MOV AL,lastDigit   ;Convert positive value to negative
 		SUB AL,lastDigit
 		SUB AL,lastDigit
@@ -1333,8 +1335,34 @@ OPT2 PROC
 		LEA DX,inputStack
 		INT 21H
 	
-	MOV CASH_QUOTIENT,0
-	MOV CASH_REMAINDER,0
+	;Validate input cash that contain .00 or not
+	MOV AH,0
+	MOV AL,inputStack[1]   ;Get actual number
+	;Place that store "." 
+	;= Arr Size - 3(3rd last arr) + 2(first 2 arr: max size & actual size)
+	;= Arr Size - 1
+	SUB AL,1               
+	MOV SI,AX
+	CMP inputStack[SI],"."
+	JE ValidCash
+	
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+	
+	MOV AH, 09H
+	LEA DX,invalidCashMsg
+	INT 21H
+	
+	MOV AH,09H
+	LEA DX,newline
+	INT 21H
+	
+	JMP InputCash
+	
+	ValidCash:
+		MOV CASH_QUOTIENT,0
+		MOV CASH_REMAINDER,0
 	
 	MOV DI,2
 	MOV CH,0
@@ -1368,10 +1396,6 @@ OPT2 PROC
 		MOV AH,0
 		MOV AL,inputStack[1]
 		LOOP ConvertCashDecimal
-		
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
 	
 	MOV AX,CASH_QUOTIENT
 	CMP AX,ADJUSTED_QUOTIENT
@@ -1383,9 +1407,17 @@ OPT2 PROC
     JAE DoneInputCash
 
     NotEnoughCash:
-	MOV AH,09H
-	LEA DX,notEnoughMsg
-	INT 21H
+		MOV AH,09H
+		LEA DX,newline
+		INT 21H
+	
+		MOV AH,09H
+		LEA DX,notEnoughMsg
+		INT 21H
+		
+		MOV AH,09H
+		LEA DX,newline
+		INT 21H
 	
 	JMP InputCash
 	
@@ -1755,12 +1787,8 @@ OPT4 PROC
 	INT 21H
 	
 	MOV AH,09H
-	LEA DX,Op4
+	LEA DX,opt4Title
 	INT 21H	
-
-	MOV AH,09H
-	LEA DX,newline
-	INT 21H
 	
 	RET
 OPT4 ENDP
@@ -1773,8 +1801,8 @@ OPT5 PROC
     MOV AH,09H
 	LEA DX,newline
 	INT 21H
-
-    MOV AH,09H
+	
+	MOV AH,09H
 	LEA DX,numOfPurchasedMsg
 	INT 21H
 
@@ -1783,25 +1811,33 @@ OPT5 PROC
     DIV tenB
     MOV BX,AX
 
+	CMP BL,0
+	JE SkipDisplayQuotient
+	
     MOV AH,02H
     MOV DL,BL
     ADD DL,30H
     INT 21H
 
-    MOV AH,02H
-    MOV DL,BH
-    ADD DL,30H
-    INT 21H
-
+	SkipDisplayQuotient:
+		MOV AH,02H
+		MOV DL,BH
+		ADD DL,30H
+		INT 21H
+	
 	MOV AH,09H
-	LEA DX,Op5
+	LEA DX,newline
+	INT 21H
+	
+	MOV AH,09H
+	LEA DX,opt5Title
 	INT 21H
 
 	RET
 OPT5 ENDP
 
 ; Misc Functions
-
+; Display number in %5d
 AmountFormatting PROC
 	MOV DI, 0
     CalculateNoOfDigits:
