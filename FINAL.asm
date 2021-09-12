@@ -52,6 +52,9 @@
 
     ; Option 1 (Display Product Information) Variables
     opt1Title DB "( Option 1 ) Display Product Information", 13, 10, 10, "$" 
+    opt4GetProdID DB "Enter the product's ID to update (01-12): $"
+    opt4InvalidID DB "Invalid product ID! Please re-enter. $"
+    opt4ProdID DB ?
     anyKeyToContinue DB "< Press any key to continue >$"
     displayPrefixID    DB "Product ID       : $"
     displayPrefixName  DB "Product Name     : $"
@@ -155,6 +158,50 @@
 
     ; Option 4 (Product Maintenance) Variables
     opt4Title DB "( Option 4 ) Product Maintenance", 13, 10, 10, "$" 
+    inputLabel LABEL BYTE
+	maxLen DB 5
+	actLen DB ?
+	inputStr DB 5 DUP('$')
+
+	inputNames LABEL BYTE
+	nameMaxLen DB 13
+	nameActLen DB ?
+	inputNameStr DB 13 DUP('$')
+
+	inputDescs LABEL BYTE
+	descsMaxLen DB 51
+	descsActLen DB ?
+	inputDescsStr DB 51 DUP('$')
+
+	ten DB 10
+
+	option DB "1. Product Name", 0DH, 0AH
+		   DB "2. Product Description", 0DH, 0AH
+		   DB "3. Unit Price", 0DH, 0AH
+		   DB "4. Product Quantity", 0DH, 0AH
+		   DB "5. Product Amount Of Quantity To Be Added", 0DH, 0AH
+		   DB "6. Exit", 0DH, 0AH
+		   DB "-----------------------------------------------", 0DH, 0AH
+		   DB "Select option to update : $"
+	opt4option1 DB "Product Name", 0DH, 0AH
+			DB "------------", 0DH, 0AH
+		    DB "Enter new product name: $"
+	opt4option2 DB "Product Description", 0DH, 0AH
+			DB "-------------------", 0DH, 0AH
+		    DB "Enter new product description : $"
+	opt4option3 DB "Unit Price", 0DH, 0AH
+			DB "----------", 0DH, 0AH
+		    DB "Enter new product Unit Price : $"
+	opt4option4 DB "Product Quantity", 0DH, 0AH
+			DB "----------------", 0DH, 0AH
+		    DB "Enter new product quantity : $"
+	opt4option5 DB "Amount Of Product Quantity To Be Added", 0DH, 0AH
+			DB "--------------------------------------", 0DH, 0AH
+		    DB "Enter the amount of product quantity to be added : $"
+	opt4optionNumber DB ?
+
+	invalidInput DB "Invalid input! Please re-enter again! $"
+    invalidInputQty DB "Quantity too large! The result quantity must be less than 256. $"
 
     ; Option 5 Ending
     opt5Title          DB 13,10,"<----- Bye..See You Next Time... ----->$"
@@ -1461,7 +1508,7 @@ OPT2 PROC
     MOV AX,CASH_REMAINDER
     CMP AX,ADJUSTED_REMAINDER
     JA Minus
-    JE NextCalcBalance
+    JE NoBalance
     
     ADD AX,HUNDRED
     SUB CASH_QUOTIENT,1
@@ -1470,7 +1517,8 @@ OPT2 PROC
     	SUB AX,ADJUSTED_REMAINDER
     	MOV BALANCE_REMAINDER,AX
     
-    NextCalcBalance:
+    NoBalance:
+    ;;Skip calculating balance
     MOV BX,CASH_QUOTIENT
     SUB BX,ADJUSTED_QUOTIENT
     MOV BALANCE_QUOTIENT,BX
@@ -1845,6 +1893,598 @@ OPT4 PROC
 	LEA DX,opt4Title
 	INT 21H	
 	
+    ; Input product ID
+    Opt4InputIDLoop:
+        MOV AH, 09H
+        LEA DX, opt4GetProdID
+        INT 21H
+        MOV AH, 01H
+        INT 21H
+        SUB AL, 30H
+        MOV BL, AL
+        INT 21H
+        SUB AL, 30H
+        MOV BH, AL
+        MOV AL, BL
+        MOV CL, 10
+        MUL CL
+        ADD AL, BH
+        CMP AL, 1
+        JB Opt4InvalidInputID
+        CMP AL, 12
+        JA Opt4InvalidInputID
+        JMP Opt4DisplayInfoPre
+    
+    Opt4InvalidInputID:
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+        LEA DX, opt4InvalidID
+        INT 21H
+        LEA DX, newline
+        INT 21H
+        JMP Opt4InputIDLoop
+
+    Opt4DisplayInfoPre:
+        DEC AL
+        MOV currProdIndex, AL
+
+    Opt4DisplayInfo:
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+        INT 21H
+
+        ; Display product info: Product ID
+        LEA DX, displayPrefixID
+        INT 21H
+        MOV AH, 0
+        MOV AL, currProdIndex
+        INC AL
+        MOV BL, 10
+        DIV BL
+
+        MOV BX, AX
+        MOV AH, 02H
+        MOV DL, BL
+        ADD DL, 30H
+        INT 21H
+        MOV DL, BH
+        ADD DL, 30H
+        INT 21H
+
+        ; Display product info: Product name
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+        LEA DX, displayPrefixName
+        INT 21H
+        MOV AL, currProdIndex
+        MUL prodNameLength
+        MOV currProdNameIndex, AL
+
+        Opt4DisplayInfoName: ;Loop 12 (prodNameLength) times to display all characters in a product name
+            MOV BH, 0
+            MOV BL, currProdNameIndex
+            MOV AH, 02H
+            MOV DL, prodNames[BX]
+            INT 21H
+
+            INC currProdNameIndex
+            MOV AH, 0
+            MOV AL, currProdNameIndex
+            DIV prodNameLength
+            CMP AH, 0
+            JNE Opt4DisplayInfoName
+        
+        ; Display product info: Product Description
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+        LEA DX, displayPrefixDesc
+        INT 21H
+        MOV AH, 0
+        MOV AL, currProdIndex
+        MOV BL, 4
+        DIV BL
+        MOV AL, AH
+        MOV AH, 0
+        MUL prodDescLength
+        MOV BX, AX
+        CMP currProdIndex, 4
+        JB Opt4DisplayInfoDesc1
+        CMP currProdIndex, 8
+        JB Opt4DisplayInfoDesc2
+        JMP Opt4DisplayInfoDesc3
+
+        Opt4DisplayInfoDesc1:
+            MOV AH, 02H
+            MOV DL, prodDescs1[BX]
+            INT 21H
+            INC BX
+            MOV AX, BX
+            DIV prodDescLength
+            CMP AH, 0
+            JNE Opt4DisplayInfoDesc1
+            JMP Opt4DisplayInfoPrice
+
+        Opt4DisplayInfoDesc2:
+            MOV AH, 02H
+            MOV DL, prodDescs2[BX]
+            INT 21H
+            INC BX
+            MOV AX, BX
+            DIV prodDescLength
+            CMP AH, 0
+            JNE Opt4DisplayInfoDesc2
+            JMP Opt4DisplayInfoPrice
+
+        Opt4DisplayInfoDesc3:
+            MOV AH, 02H
+            MOV DL, prodDescs3[BX]
+            INT 21H
+            INC BX
+            MOV AX, BX
+            DIV prodDescLength
+            CMP AH, 0
+            JNE Opt4DisplayInfoDesc3
+            JMP Opt4DisplayInfoPrice
+
+        ; Display product info: Product Price
+        Opt4DisplayInfoPrice: 
+            MOV AH, 09H
+            LEA DX, newline
+            INT 21H
+            LEA DX, displayPrefixPrice
+            INT 21H
+            MOV AL, currProdIndex
+            MOV BL, 2
+            MUL BL
+            MOV BL, AL
+            MOV BH, 0
+            MOV AX, prodPrices[BX]
+            CALL DisplayNum
+            MOV AH, 02H
+            MOV DL, '.'
+            INT 21H
+            MOV DL, '0'
+            INT 21H
+            INT 21H
+        
+        ; Display product info: Product Quantity
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+        LEA DX, displayPrefixQty
+        INT 21H
+        MOV BH, 0
+        MOV BL, currProdIndex
+        MOV AH, 0
+        MOV AL, prodQuantities[BX]
+        CALL DisplayNum
+        MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+;LSW Program
+	inputOption:
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print option
+	    MOV AH, 09H
+	    LEA DX, option
+	    INT 21H
+
+		;Input option
+	    MOV AH, 01H
+	    INT 21H
+	    SUB AL, 30H
+		MOV opt4optionNumber, AL
+		CMP opt4optionNumber, 1
+		JB opt4InvalidOption
+		CMP opt4optionNumber, 6
+		JA opt4InvalidOption
+		CMP opt4optionNumber, 1
+		JE L1
+		CMP opt4optionNumber, 2
+		JE L2
+		CMP opt4optionNumber, 3
+		JE L3
+		CMP opt4optionNumber, 4
+		JE L4
+		CMP opt4optionNumber, 5
+		JE L5
+		CMP opt4optionNumber, 6
+		JE L6
+
+		L1:
+  			JMP opt4_1
+		L2:
+  			JMP opt4_2
+		L3:
+  			JMP opt4_3
+		L4:
+  			JMP opt4_4
+		L5:
+  			JMP opt4_5
+		L6:
+			JMP opt4End
+
+	opt4InvalidOption:  
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+		
+		;Print Invalid
+		MOV AH, 09H
+	    LEA DX, invalidInput
+	    INT 21H
+
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+		JMP inputOption
+
+	opt4_1:
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print option1
+		MOV AH, 09H
+	    LEA DX, opt4option1
+	    INT 21H
+
+		;Input product name
+		MOV AH, 0AH
+		LEA DX,inputNames
+		INT 21H
+		
+		MOV AL, currProdIndex
+		MUL prodNameLength
+		MOV BX, AX
+
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, prodNameLength
+		opt1Assign:
+			MOV AH, 0
+			MOV AL, nameActLen
+			CMP SI, AX
+			JB opt1Char
+			MOV prodNames[BX], " "
+			JMP opt1AssignEnd
+
+			opt1Char:
+				MOV DL, inputNameStr[SI]
+				MOV prodNames[BX], DL
+			
+			opt1AssignEnd:
+				INC BX
+				INC SI
+		LOOP opt1Assign
+
+		JMP Opt4DisplayInfo
+
+	opt4_2:
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print option2
+		MOV AH, 09H
+	    LEA DX, opt4option2
+	    INT 21H
+		
+		;Input product description
+		MOV AH, 0AH
+		LEA DX,inputDescs
+		INT 21H
+		
+		MOV AH, 0
+		MOV AL, currProdIndex
+		DIV prodDescDivLen
+		MOV AL, AH
+		MOV AH, 0
+		MUL prodDescLength
+		MOV BX, AX
+
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, prodDescLength
+		opt2Assign:
+			MOV AH, 0
+			MOV AL, descsActLen
+			CMP SI, AX
+			JB opt2Char
+			MOV inputDescsStr[SI], " "
+			opt2Char:
+				CMP currProdIndex, 4
+				JB opt2Char1
+				CMP currProdIndex, 8
+				JB opt2Char2
+				JMP opt2Char3
+			opt2Char1:
+				MOV DL, inputDescsStr[SI]
+				MOV prodDescs1[BX], DL
+				JMP opt2AssignEnd
+			opt2Char2:
+				MOV DL, inputDescsStr[SI]
+				MOV prodDescs2[BX], DL
+				JMP opt2AssignEnd
+			opt2Char3:
+				MOV DL, inputDescsStr[SI]
+				MOV prodDescs3[BX], DL
+				JMP opt2AssignEnd
+			
+			opt2AssignEnd:
+				INC BX
+				INC SI
+		LOOP opt2Assign
+
+		JMP Opt4DisplayInfo
+
+	opt4_3:
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print option3
+		MOV AH, 09H
+	    LEA DX, opt4option3
+	    INT 21H
+
+		;Input unit price
+		MOV AH, 0AH
+		LEA DX, inputLabel
+		INT 21H
+
+		;Validation input
+		MOV AX, 0
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, actLen
+		opt3Valid:
+			CMP inputStr[SI], '0'
+			JB opt3InvalidInput
+			CMP inputStr[SI], '9'
+			JA opt3InvalidInput
+
+			INC SI
+		LOOP opt3Valid
+
+		;Input process
+		MOV AX, 0
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, actLen
+		opt3StrToNum:
+			MUL ten
+			ADD AL, inputStr[SI]
+			SUB AL, 30H
+
+			INC SI
+		LOOP opt3StrToNum
+
+		MOV BX, 0
+		MOV BL, currProdIndex
+		ADD BL, currProdIndex
+		MOV prodPrices[BX], AX
+
+		JMP Opt4DisplayInfo
+
+	opt3InvalidInput:
+		;Print newline
+		MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+
+		;Print invalidInput
+		MOV AH, 09H
+		LEA DX, invalidInput
+		INT 21H
+		
+		JMP opt4_3
+
+	opt4_4:
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print option4
+		MOV AH, 09H
+	    LEA DX, opt4option4
+	    INT 21H
+
+		;Input product quantity
+		MOV AH, 0AH
+		LEA DX, inputLabel
+		INT 21H
+
+		;Validation input
+        CMP actLen, 2
+        JA opt4InvalidInputQty
+
+		MOV AX, 0
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, actLen
+		opt4Valid:
+			CMP inputStr[SI], '0'
+			JB opt4InvalidInput
+			CMP inputStr[SI], '9'
+			JA opt4InvalidInput
+
+			INC SI
+		LOOP opt4Valid
+
+		;Input process
+		MOV AX, 0
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, actLen
+		opt4StrToNum:
+			MUL ten
+			ADD AL, inputStr[SI]
+			SUB AL, 30H
+
+			INC SI
+		LOOP opt4StrToNum
+
+		MOV BX, 0
+		MOV BL, currProdIndex
+		MOV prodQuantities[BX], AL
+
+		JMP Opt4DisplayInfo
+
+	opt4InvalidInput:
+		;Print newline
+		MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+
+		;Print invalidInput
+		MOV AH, 09H
+		LEA DX, invalidInput
+		INT 21H
+		
+		JMP opt4_4
+
+    opt4InvalidInputQty:
+        ;Print newline
+		MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+
+		;Print invalidInput
+		MOV AH, 09H
+		LEA DX, invalidInputQty
+		INT 21H
+		
+		JMP opt4_4
+
+	opt4_5:
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+
+		;Print newline
+		MOV AH, 09H
+	    LEA DX, newline
+	    INT 21H
+		
+		MOV AH, 09H
+	    LEA DX, opt4option5
+	    INT 21H
+
+		;Input product amount of quantity to be added
+		MOV AH, 0AH
+		LEA DX, inputLabel
+		INT 21H
+
+		;Validation input
+        CMP actLen, 3
+        JA opt5InvalidInputQty
+
+		MOV AX, 0
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, actLen
+		opt5Valid:
+			CMP inputStr[SI], '0'
+			JB opt5InvalidInput
+			CMP inputStr[SI], '9'
+			JA opt5InvalidInput	
+
+			INC SI
+		LOOP opt5Valid
+
+		;Input process
+		MOV AX, 0
+		MOV SI, 0
+		MOV CX, 0
+		MOV CL, actLen
+		opt5StrToNum:
+			MUL ten
+			ADD AL, inputStr[SI]
+			SUB AL, 30H
+
+			INC SI
+		LOOP opt5StrToNum
+
+		MOV BX, 0
+		MOV BL, currProdIndex
+        MOV DL, prodQuantities[BX]
+        ADD DL, AL
+        JC opt5InvalidInputQty
+		ADD prodQuantities[BX], AL
+
+		JMP Opt4DisplayInfo
+
+	opt5InvalidInput:
+		;Print newline
+		MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+
+		;Print invalidInput
+		MOV AH, 09H
+		LEA DX, invalidInput
+		INT 21H
+
+		JMP opt4_5
+
+    opt5InvalidInputQty:
+        ;Print newline
+		MOV AH, 09H
+        LEA DX, newline
+        INT 21H
+
+		;Print invalidInput
+		MOV AH, 09H
+		LEA DX, invalidInputQty
+		INT 21H
+		
+		JMP opt4_5
+
+    opt4End:
+    MOV AH, 09H
+    LEA DX, newline
+    INT 21H
 	RET
 OPT4 ENDP
 
