@@ -145,7 +145,7 @@
 
     ; Option 3 (Display Sales Summary) Variables
     opt3Title DB "( Option 3 ) Display Sales Summary", 13, 10, 10, "$" 
-    opt3Header DB       '| Product/Service | Price (RM) | Sold Quantity | Total Sales (RM) |  Sales %  |', 13, 10, '$'
+    opt3Header DB       '| Product         | Price (RM) | Sold Quantity | Total Sales (RM) |  Sales %  |', 13, 10, '$'
     opt3HeaderLine DB   '+-----------------+------------+---------------+------------------+-----------+', 13, 10, '$'
     opt3FooterLine DB   '+----------------------------------------------+------------------+-----------+', 13, 10, '$'
     opt3FooterPre DB    '|                                  Grand Total | RM $'
@@ -1634,7 +1634,7 @@ OPT3 PROC
         LEA DX, opt3TableRowStart
         INT 21H
 
-        ; Display product/service name
+        ; Display product name
         Opt3DisplayName:
             XOR BX, BX
             MOV BL, currProdNameIndex
@@ -1971,21 +1971,14 @@ OPT4 PROC
         INT 21H
         MOV AL, currProdIndex
         MUL prodNameLength
-        MOV currProdNameIndex, AL
+        MOV SI, AX
 
         Opt4DisplayInfoName: ;Loop 12 (prodNameLength) times to display all characters in a product name
-            MOV BH, 0
-            MOV BL, currProdNameIndex
             MOV AH, 02H
-            MOV DL, prodNames[BX]
+            MOV DL, prodNames[SI]
             INT 21H
-
-            INC currProdNameIndex
-            MOV AH, 0
-            MOV AL, currProdNameIndex
-            DIV prodNameLength
-            CMP AH, 0
-            JNE Opt4DisplayInfoName
+            INC SI
+        LOOP Opt4DisplayInfoName
         
         ; Display product info: Product Description
         MOV AH, 09H
@@ -2000,7 +1993,9 @@ OPT4 PROC
         MOV AL, AH
         MOV AH, 0
         MUL prodDescLength
-        MOV BX, AX
+        MOV SI, AX
+        XOR CX, CX
+        MOV CL, prodDescLength
         CMP currProdIndex, 4
         JB Opt4DisplayInfoDesc1
         CMP currProdIndex, 8
@@ -2009,36 +2004,27 @@ OPT4 PROC
 
         Opt4DisplayInfoDesc1:
             MOV AH, 02H
-            MOV DL, prodDescs1[BX]
+            MOV DL, prodDescs1[SI]
             INT 21H
-            INC BX
-            MOV AX, BX
-            DIV prodDescLength
-            CMP AH, 0
-            JNE Opt4DisplayInfoDesc1
-            JMP Opt4DisplayInfoPrice
+            INC SI
+        LOOP Opt4DisplayInfoDesc1
+        JMP Opt4DisplayInfoPrice
 
         Opt4DisplayInfoDesc2:
             MOV AH, 02H
-            MOV DL, prodDescs2[BX]
+            MOV DL, prodDescs2[SI]
             INT 21H
-            INC BX
-            MOV AX, BX
-            DIV prodDescLength
-            CMP AH, 0
-            JNE Opt4DisplayInfoDesc2
-            JMP Opt4DisplayInfoPrice
+            INC SI
+        LOOP Opt4DisplayInfoDesc2
+        JMP Opt4DisplayInfoPrice
 
         Opt4DisplayInfoDesc3:
             MOV AH, 02H
-            MOV DL, prodDescs3[BX]
+            MOV DL, prodDescs3[SI]
             INT 21H
-            INC BX
-            MOV AX, BX
-            DIV prodDescLength
-            CMP AH, 0
-            JNE Opt4DisplayInfoDesc3
-            JMP Opt4DisplayInfoPrice
+            INC SI
+        LOOP Opt4DisplayInfoDesc3
+        JMP Opt4DisplayInfoPrice
 
         ; Display product info: Product Price
         Opt4DisplayInfoPrice: 
@@ -2075,6 +2061,8 @@ OPT4 PROC
         MOV AH, 09H
         LEA DX, newline
         INT 21H
+
+
 ;LSW Program
 	inputOption:
 		;Print newline
