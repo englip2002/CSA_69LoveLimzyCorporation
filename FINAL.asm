@@ -105,7 +105,7 @@
     purchaseBill        DB       "---------------------------------------"
                         DB 13,10,"             PURCHASE BILL$"
     purchaseBillLine    DB       "---------------------------------------$"
-    purchaseBillItemMsg DB "Item           Quantity    Subtotal$"
+    purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
     deliveryTotalMsg    DB "Delivery                   RM   20.00$"
     subtotalLine        DB "                           ------------$"
     subtotalMsg         DB "                           RM$"
