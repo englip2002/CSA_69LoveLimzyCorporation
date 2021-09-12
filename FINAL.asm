@@ -981,7 +981,7 @@ OPT2 PROC
         LOOP LOOP_SPACE1
 
         MOV AH,0
-        MOV AL,PurchaseQuantity[SI]
+        MOV AL,PurchaseQuantity[SI]  ;--display purchase quantity
         DIV tenB
         MOV BX,AX
 
@@ -1014,11 +1014,11 @@ OPT2 PROC
         MUL TWO                    ;--to get real index of item 
         MOV BX,AX
         
-        MOV AX,prodPrices[BX]
+        MOV AX,prodPrices[BX]         ;--product subtotal= AX(prices)* BX(quantity)
         MOV BX, 0
-        MOV BL, purchaseQuantity[SI]
+        MOV BL, purchaseQuantity[SI]  ;--to get the product subtotal for each product and display
         MUL BX
-	MOV PurchasePrice,AX
+	MOV PurchasePrice,AX              ;--move to purchase price
         CALL AmountFormatting
 	MOV AX,PurchasePrice
 	CALL DisplayNum
@@ -1041,7 +1041,7 @@ OPT2 PROC
 
         INC SI
         MOV DL,continuePurchaseCount
-        CMP PurchasingItem[SI],DL
+        CMP PurchasingItem[SI],DL       ;--compare the index reach the purchaseCount(the count of item bought) or not
         JGE VALIDATE_DELIVERY
         JMP DISPLAY_PURCHASED_ITEM
 		
