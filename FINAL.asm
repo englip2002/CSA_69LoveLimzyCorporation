@@ -106,7 +106,7 @@
                         DB 13,10,"             PURCHASE BILL$"
     purchaseBillLine    DB       "---------------------------------------$"
     purchaseBillItemMsg DB "Item           Quantity    Subtotal$"
-    deliveryTotalMsg    DB "Delivery                   RM   20.00$"
+    deliveryTotalMsg    DB "Delivery                   RM    20.00$"
     subtotalLine        DB "                           ------------$"
     subtotalMsg         DB "                           RM$"
     sstMsg              DB "SST (5%)                :  RM$"
@@ -1098,6 +1098,12 @@ OPT2 PROC
 	    INT 21H
 
     ;------Calculate Rounding Adjustment
+	;reset
+	MOV roundingAdjustment,0
+	MOV lastDigit,0
+	MOV ADJUSTED_QUOTIENT,0
+	MOV ADJUSTED_REMAINDER,0
+	
     MOV DX,0
     MOV AX,TOTAL_REMAINDER
     MOV BH,0
@@ -1129,6 +1135,8 @@ OPT2 PROC
     	ADD AX,TOTAL_QUOTIENT
     	MOV ADJUSTED_QUOTIENT,AX
     	MOV ADJUSTED_REMAINDER,DX    
+		
+		
     ;---Display SST
     MOV AH,09H
     LEA DX,sstMsg
@@ -1390,6 +1398,8 @@ OPT2 PROC
     	MUL tenW
     	ADD AX,BX
     	MOV CASH_QUOTIENT,AX
+		;reset
+		MOV inputStack[DI]," "
     	INC DI
     	LOOP ConvertCashInteger
     
@@ -1404,6 +1414,8 @@ OPT2 PROC
     	MUL tenW
     	ADD AX,BX
     	MOV CASH_REMAINDER,AX
+		;reset
+		MOV inputStack[DI]," "
     	INC DI
     	MOV AH,0
     	MOV AL,inputStack[1]
@@ -1435,6 +1447,10 @@ OPT2 PROC
     
     DoneInputCash:
     ;---Calculate Balance
+	;reset
+	MOV BALANCE_QUOTIENT,0
+	MOV BALANCE_REMAINDER,0
+	
     MOV AX,CASH_REMAINDER
     CMP AX,ADJUSTED_REMAINDER
     JA Minus
