@@ -128,7 +128,7 @@
     ;---Output & Input Amounts Used
     tenB                DB 10
     tenW                DW 10
-    inputStack          DB 10 DUP(" ")
+    inputStack          DB 15 DUP(" ")  ; 10 char input + 5 extra space to capture overflow numbers
     
     ;---For Calculating Rounding Adjustment
     five                DB 5
@@ -377,6 +377,8 @@ OPT1 PROC
     INT 21H
     
     MOV currProdIndex, 0
+    MOV currProdNameIndex, 0
+    MOV currProdDescIndex, 0
     Opt1ProductLoop:
         ; Display Product ID
         LEA DX, displayPrefixID
@@ -387,6 +389,7 @@ OPT1 PROC
         MOV BL, 10
         DIV BL
 
+        ; Display 2 digit Product ID
         MOV BX, AX
         MOV AH, 02H
         MOV DL, BL
@@ -543,6 +546,7 @@ OPT2 PROC
     MOV CalculateSubtotalIndex, 0
     MOV currProdIndex, 0
     MOV currProdNameIndex, 0
+    MOV five, 5
 
     MOV SI, 0
     MOV CX, 20
@@ -981,7 +985,7 @@ OPT2 PROC
         LOOP LOOP_SPACE1
 
         MOV AH,0
-        MOV AL,PurchaseQuantity[SI]  ;--display purchase quantity
+        MOV AL,PurchaseQuantity[SI]
         DIV tenB
         MOV BX,AX
 
@@ -1014,11 +1018,11 @@ OPT2 PROC
         MUL TWO                    ;--to get real index of item 
         MOV BX,AX
         
-        MOV AX,prodPrices[BX]         ;--product subtotal= AX(prices)* BX(quantity)
+        MOV AX,prodPrices[BX]
         MOV BX, 0
-        MOV BL, purchaseQuantity[SI]  ;--to get the product subtotal for each product and display
+        MOV BL, purchaseQuantity[SI]
         MUL BX
-	MOV PurchasePrice,AX              ;--move to purchase price
+	MOV PurchasePrice,AX
         CALL AmountFormatting
 	MOV AX,PurchasePrice
 	CALL DisplayNum
@@ -1040,9 +1044,10 @@ OPT2 PROC
         INT 21H
 
         INC SI
+        MOV DH, 0
         MOV DL,continuePurchaseCount
-        CMP PurchasingItem[SI],DL       ;--compare the index reach the purchaseCount(the count of item bought) or not
-        JGE VALIDATE_DELIVERY
+        CMP SI, DX
+        JE VALIDATE_DELIVERY
         JMP DISPLAY_PURCHASED_ITEM
 		
     VALIDATE_DELIVERY:
@@ -1105,19 +1110,19 @@ OPT2 PROC
 	MOV lastDigit,0
 	MOV ADJUSTED_QUOTIENT,0
 	MOV ADJUSTED_REMAINDER,0
-	
+
     MOV DX,0
     MOV AX,TOTAL_REMAINDER
     MOV BH,0
     MOV BL,five
     DIV BX
     MOV lastDigit,DL
-    
+
     CMP lastDigit,3
     JB LessThanThree
     
     ;ie RM0.53 --> RM0.55
-    MOV AL,five
+    MOV AL,5
     SUB AL,lastDigit
     MOV roundingAdjustment,AL
     JMP CalculateAdjustedAmount
@@ -1137,7 +1142,6 @@ OPT2 PROC
     	ADD AX,TOTAL_QUOTIENT
     	MOV ADJUSTED_QUOTIENT,AX
     	MOV ADJUSTED_REMAINDER,DX    
-		
 		
     ;---Display SST
     MOV AH,09H
@@ -1406,6 +1410,7 @@ OPT2 PROC
     	LOOP ConvertCashInteger
     
     NextConverting:
+    MOV inputStack[DI], " "
     INC DI
     MOV CX,2
     ConvertCashDecimal:
