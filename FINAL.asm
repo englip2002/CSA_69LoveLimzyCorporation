@@ -105,7 +105,7 @@
     purchaseBill        DB       "---------------------------------------"
                         DB 13,10,"             PURCHASE BILL$"
     purchaseBillLine    DB       "---------------------------------------$"
-    purchaseBillItemMsg DB "Item           Quantity     Subtotal$"
+    purchaseBillItemMsg DB "Item           Quantity    Subtotal$"
     deliveryTotalMsg    DB "Delivery                   RM   20.00$"
     subtotalLine        DB "                           ------------$"
     subtotalMsg         DB "                           RM$"
@@ -1457,6 +1457,9 @@ OPT2 PROC
     
     ;---Display Balance
     MOV AH,09H
+    LEA DX, newline
+    INT 21H
+    INT 21H
     LEA DX,balanceMsg
     INT 21H
     
