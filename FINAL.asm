@@ -146,11 +146,11 @@
     opt3HeaderLine DB   '+-----------------+------------+---------------+------------------+-----------+', 13, 10, '$'
     opt3FooterLine DB   '+----------------------------------------------+------------------+-----------+', 13, 10, '$'
     opt3FooterPre DB    '|                                  Grand Total | RM $'
-    opt3FooterPercent DB '100.000 %$'
     opt3TableRowStart DB "| $"
     opt3TableRowEnd DB " |", 13, 10, "$"
     opt3TableCellBar DB " | $"
     opt3GrandTotal DW 0, 0   ; First = Upper 16-bits, Second = Lower 16-bits 
+    opt3ZeroP DB "  0.000$"
     opt3HundredP DB "100.000$"
 
     ; Option 4 (Product Maintenance) Variables
@@ -1774,11 +1774,31 @@ OPT3 PROC
         MOV DL, '0'
         INT 21H
         INT 21H
+
         MOV AH, 09H
         LEA DX, opt3TableCellBar
         INT 21H
-        LEA DX, opt3FooterPercent
+        
+        CMP opt3GrandTotal[0], 0
+        JNE Opt3FooterHundredPercent
+        CMP opt3GrandTotal[2], 0
+        JNE Opt3FooterHundredPercent
+        LEA DX, opt3ZeroP
         INT 21H
+        JMP Opt3FooterPercentEnd
+
+    Opt3FooterHundredPercent:
+        LEA DX, opt3HundredP
+        INT 21H
+
+    Opt3FooterPercentEnd:
+        MOV AH, 02H
+        MOV DL, ' '
+        INT 21H
+        MOV DL, '%'
+        INT 21H
+
+        MOV AH, 09H
         LEA DX, opt3TableRowEnd
         INT 21H
         LEA DX, opt3FooterLine
@@ -2018,8 +2038,19 @@ DisplayPercentage PROC
     MOV div32Dividend[2], AX
     MOV div32Divisor[0], BX
     MOV div32Divisor[2], CX
+
+    ; Display 0% if x == 0
+    CMP DX, 0
+    JNE CheckXEqualsY
+    CMP AX, 0
+    JNE CheckXEqualsY
+    MOV AH, 09H
+    LEA DX, opt3ZeroP
+    INT 21H
+    JMP DisplayPercentageEnd
     
     ; Display 100% if x == y (avoid unnecessary calculation)
+    CheckXEqualsY:
     CMP DX, BX
     JNE div32Start
     CMP AX, CX
