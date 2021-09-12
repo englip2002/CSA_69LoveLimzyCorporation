@@ -136,8 +136,8 @@
     roundingAdjustment  DB ?
     
     ;---Formatting Rounding Adjustment
-    positiveRounding    DB "+RM    0.0$"
-    negativeRounding    DB "-RM    0.0$"
+    positiveRounding    DB "+RM     0.0$"
+    negativeRounding    DB "-RM     0.0$"
 	
 
     ; Option 3 (Display Sales Summary) Variables
@@ -1882,7 +1882,7 @@ AmountFormatting PROC
         CMP AX, 0
         JNE CalculateNoOfDigits
 	
-	MOV BX,5
+	MOV BX,6
 	SUB BX,DI
 	MOV CX,BX
 	Formatting:
