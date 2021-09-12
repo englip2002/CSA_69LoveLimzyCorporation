@@ -1015,7 +1015,9 @@ OPT2 PROC
         MOV BX,AX
         
         MOV AX,prodPrices[BX]
-        MUL purchaseQuantity[SI]
+        MOV BX, 0
+        MOV BL, purchaseQuantity[SI]
+        MUL BX
 	MOV PurchasePrice,AX
         CALL AmountFormatting
 	MOV AX,PurchasePrice
@@ -1463,13 +1465,11 @@ OPT2 PROC
     	SUB AX,ADJUSTED_REMAINDER
     	MOV BALANCE_REMAINDER,AX
     
+    NoBalance:
+    ;;Skip calculating balance
     MOV BX,CASH_QUOTIENT
     SUB BX,ADJUSTED_QUOTIENT
     MOV BALANCE_QUOTIENT,BX
-    
-    NoBalance:
-    ;;Skip calculating balance
-
     
     ;---Display Balance
     MOV AH,09H
