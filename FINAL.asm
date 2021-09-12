@@ -1894,15 +1894,26 @@ OPT4 PROC
 	
     ; Input product ID
     Opt4InputIDLoop:
+        ; Prompt Input
         MOV AH, 09H
         LEA DX, opt4GetProdID
         INT 21H
+
+        ; Input First digit
         MOV AH, 01H
         INT 21H
         SUB AL, 30H
+        CMP AL, 1
+        JA Opt4InvalidInputID
+
+        ; Input Second digit
         MOV BL, AL
         INT 21H
         SUB AL, 30H
+        CMP AL, 9
+        JA Opt4InvalidInputID
+
+        ; Validate
         MOV BH, AL
         MOV AL, BL
         MOV CL, 10
