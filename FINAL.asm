@@ -1461,7 +1461,7 @@ OPT2 PROC
     MOV AX,CASH_REMAINDER
     CMP AX,ADJUSTED_REMAINDER
     JA Minus
-    JE NoBalance
+    JE NextCalcBalance
     
     ADD AX,HUNDRED
     SUB CASH_QUOTIENT,1
@@ -1470,8 +1470,7 @@ OPT2 PROC
     	SUB AX,ADJUSTED_REMAINDER
     	MOV BALANCE_REMAINDER,AX
     
-    NoBalance:
-    ;;Skip calculating balance
+    NextCalcBalance:
     MOV BX,CASH_QUOTIENT
     SUB BX,ADJUSTED_QUOTIENT
     MOV BALANCE_QUOTIENT,BX
